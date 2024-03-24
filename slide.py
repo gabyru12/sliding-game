@@ -4,7 +4,7 @@ import sys
 pygame.init()
 
 width = 500
-height = 600
+height = 700
 screen = pygame.display.set_mode((width,height))
 pygame.display.set_caption("slide game")
 font = pygame.font.SysFont(None,40)
@@ -91,25 +91,33 @@ def game():
     clock = pygame.time.Clock()
     red_rect = pygame.Rect((100,100,50,50))
     speed = 1
+    movement_right,movement_down = False,False
     while run:
         screen.fill("light blue")
-        clock.tick(120)
+        clock.tick(1800)
         red = pygame.draw.rect(screen,"red",red_rect)
         yellow = pygame.draw.rect(screen, "yellow", (400,100,50,50))
         yellow_border = pygame.draw.rect(screen, "light blue", (400,100,50,50),5,0)
+        screen.blit(font.render("Use W and D to move",1,"black"),(50,50))
         for event in pygame.event.get():
-                if event.type == pygame.QUIT:
+            if event.type == pygame.QUIT:
+                run = False
+                quit()
+                exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
                     run = False
-                    quit()
-                    exit()
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        run = False
-                        main_menu()
+                    main_menu()
+                if event.key == pygame.K_d:
+                    movement_right = True
+                if event.key == pygame.K_s:
+                    movement_down = True
         if pygame.Rect.colliderect(red,yellow_border):
-            speed = 0
-        red_rect.x += speed
+            movement_right = False
+        if movement_right:
+            red_rect.x += speed
+        if movement_down:
+            red_rect.y += speed
         pygame.display.update()
 
 play()
-
