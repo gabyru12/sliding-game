@@ -1,5 +1,6 @@
 import pygame
 import sys
+
 pygame.init()
 
 width = 500
@@ -87,8 +88,15 @@ def main_menu():
 
 def game():
     run = True
+    clock = pygame.time.Clock()
+    red_rect = pygame.Rect((100,100,50,50))
+    speed = 1
     while run:
         screen.fill("light blue")
+        clock.tick(120)
+        red = pygame.draw.rect(screen,"red",red_rect)
+        yellow = pygame.draw.rect(screen, "yellow", (400,100,50,50))
+        yellow_border = pygame.draw.rect(screen, "light blue", (400,100,50,50),5,0)
         for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
@@ -98,6 +106,9 @@ def game():
                     if event.key == pygame.K_ESCAPE:
                         run = False
                         main_menu()
+        if pygame.Rect.colliderect(red,yellow_border):
+            speed = 0
+        red_rect.x += speed
         pygame.display.update()
 
 play()
