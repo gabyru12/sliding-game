@@ -57,6 +57,7 @@ def game():
             movement_up = False
         if red_rect.y+100+speed > game_screen_rect.y+400:
             movement_down = False
+        #se A e D ou W e S forem clicadas ele vai ficar num loop 1-1 = 0 e ficar parado horizontal ou verticalmente
         if movement_left == True: 
             red_rect.x -= speed
         if movement_right == True: 
