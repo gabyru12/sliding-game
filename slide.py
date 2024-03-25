@@ -91,14 +91,18 @@ def game():
     clock = pygame.time.Clock()
     red_rect = pygame.Rect((100,100,50,50))
     speed = 1
-    movement_right,movement_down = False,False
+    movement_left,movement_right,movement_up,movement_down = False,False,False,False
+    direction = ["left","right","up","down"]
+
     while run:
         screen.fill("light blue")
         clock.tick(1800)
         red = pygame.draw.rect(screen,"red",red_rect)
         yellow = pygame.draw.rect(screen, "yellow", (400,100,50,50))
         yellow_border = pygame.draw.rect(screen, "light blue", (400,100,50,50),5,0)
+
         screen.blit(font.render("Use W and D to move",1,"black"),(50,50))
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -108,10 +112,15 @@ def game():
                 if event.key == pygame.K_ESCAPE:
                     run = False
                     main_menu()
+                if event.key == pygame.K_a:
+                    movement_left = True
                 if event.key == pygame.K_d:
                     movement_right = True
+                if event.key == pygame.K_w:
+                    movement_up = True
                 if event.key == pygame.K_s:
                     movement_down = True
+                    
         if pygame.Rect.colliderect(red,yellow_border):
             movement_right = False
         if movement_right:
@@ -121,3 +130,4 @@ def game():
         pygame.display.update()
 
 play()
+
