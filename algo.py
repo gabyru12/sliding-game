@@ -1,9 +1,9 @@
 import copy
 # Cria tabuleiro
 board = [["0" for _ in range(4)] for _ in range(4)]
-board[2][3] = "1" #start
-board[3][0] = "2" #finish
-#board[2][0], board[3][1] = "3","3" #obstacles
+board[2][2] = "1" #start
+#board[0][0] = "2" #finish
+#board[2][0], board[3][3] = "3","3" #obstacles
 
 # Dá a posição de uma peça
 def pos_piece(board):
@@ -31,13 +31,13 @@ def check_move(pos_piece,board):
     if col != 0: 
         if board[row][col-1] != "3":
             moves_bool["move_left"] = True
-    if col != 3: 
+    if col != len(board)-1: 
         if board[row][col+1] != "3":
             moves_bool["move_right"] = True
     if row != 0: 
         if board[row-1][col] != "3":
             moves_bool["move_up"] = True
-    if row != 3: 
+    if row != len(board)-1: 
         if board[row+1][col] != "3":
             moves_bool["move_down"] = True
     for key,value in moves_bool.items():
@@ -47,7 +47,7 @@ def check_move(pos_piece,board):
 
 memo = [board]
 memo1 = [] #memoriza estados do tabuleiro para dar print
-visited = [] #!!!AINDA NÃO ESTÁ A SER UTILIZADO!!!
+visited = [] 
 counter = 0
 
 # Faz o movimento e retorna novos estados para memo1 
@@ -73,16 +73,24 @@ def do_move(check_move, pos_piece):
                     if board1[row-1][col_piece] == "3":
                         board1[row][col_piece] = "1"
                         break
+                if board1 in visited:
+                    continue
+                else:
+                    visited.append(board1)
                 memo1.append(board1)
             elif moves[j] == "move_down":
                 board1[row_piece][col_piece] = "0"
-                for row in range(row_piece, 4,1):
-                    if row == 3:
+                for row in range(row_piece, len(board1),1):
+                    if row == len(board1)-1:
                         board1[row][col_piece] = "1"
                         break
                     if board1[row+1][col_piece] == "3":
                         board1[row][col_piece] = "1"
                         break
+                if board1 in visited:
+                    continue
+                else:
+                    visited.append(board1)
                 memo1.append(board1)
             elif moves[j] == "move_left":
                 board1[row_piece][col_piece] = "0"
@@ -93,16 +101,24 @@ def do_move(check_move, pos_piece):
                     if board1[row_piece][col-1] == "3":
                         board1[row_piece][col] = "1"
                         break
+                if board1 in visited:
+                    continue
+                else:
+                    visited.append(board1)                    
                 memo1.append(board1)
             elif moves[j] == "move_right":
                 board1[row_piece][col_piece] = "0"
-                for col in range(col_piece, 4,1):
-                    if col == 3:
+                for col in range(col_piece, len(board1),1):
+                    if col == len(board1)-1:
                         board1[row_piece][col] = "1"
                         break
                     if board1[row_piece][col+1] == "3":
                         board1[row_piece][col] = "1"
                         break
+                if board1 in visited: 
+                    continue
+                else: 
+                    visited.append(board1)
                 memo1.append(board1)
             if solution_check(pos_piece,pos_finish,board1,board): 
                 flag = True
@@ -110,8 +126,6 @@ def do_move(check_move, pos_piece):
                 break
     counter += 1
                 
-            
-
 #print do tabuleiro para análise
 def print_board(memo):
     for i in range(len(memo)):
@@ -122,9 +136,9 @@ def print_board(memo):
 
 print("Initial Board:")
 print_board(memo)
-
 do_move(check_move, pos_piece) #primeira transformação
-do_move(check_move, pos_piece) #segunda transformação
+#do_move(check_move, pos_piece) #segunda transformação
+#do_move(check_move, pos_piece) #segunda transformação
 print(f"counter: {counter}\n")
 print_board(memo1)
 
