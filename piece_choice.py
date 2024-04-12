@@ -39,7 +39,7 @@ def draw_board(size):
 def draw_piece(screen, square_size, margin_x, margin_y, col_clicked, row_clicked, piece_color,size):
     rows, cols = map(int, size.split('x'))
     board_size = 300 + 2 * (rows-1)
-    pygame.draw.rect(screen, piece_color, ((margin_x + col_clicked * square_size), (margin_y + row_clicked * square_size), square_size+1, square_size+1))
+    pygame.draw.rect(screen, piece_color, ((margin_x + col_clicked * square_size), (margin_y + row_clicked * square_size), square_size+2, square_size+2))
     pygame.draw.rect(screen, "black", (margin_x, margin_y, board_size, board_size),2)
     for row in range(rows - 1):
         pygame.draw.line(screen, "black", (margin_x, (margin_y + (row + 1) * square_size)), (margin_x + board_size - 1, (margin_y + (row + 1) * square_size)), 2)
@@ -177,7 +177,7 @@ def put_pieces():
             elif button_x_start + 400 <= mx <= button_x_start + 550 and 150 <= my <= 200:
                 selected_piece = "Peça 3"
 
-        margin_x, margin_y, square_size, rows, cols = draw_board("5x5")
+        margin_x, margin_y, square_size, rows, cols = draw_board("6x6")
 
         if selected_piece:
             col_clicked = (mx - margin_x) // square_size
@@ -190,7 +190,7 @@ def put_pieces():
                     piece_color = "yellow"
                 elif selected_piece == "Peça 3":
                     piece_color = "black"
-                draw_piece(screen, square_size, margin_x, margin_y, col_clicked, row_clicked, piece_color,"5x5")
+                draw_piece(screen, square_size, margin_x, margin_y, col_clicked, row_clicked, piece_color,"6x6")
         
         pygame.display.update()
 
