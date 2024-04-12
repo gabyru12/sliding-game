@@ -46,8 +46,6 @@ def pos_finish(board):
         return pos_finishes
     return 0
 
-#def pos_single_piece(piece)
-
 # Dá a posição das posições finais
 def pos_finish(board):
     pos_finishes = {}
@@ -118,17 +116,20 @@ def do_move(check_move, pos_piece,board):
             pieces = used_pieces(board)
             new_board = copy.deepcopy(memo[i])
             if moves[j] == "move_up":
-                for value in piece_positions.values():
-                    x,y = value
-                    new_board[x][y] = "0"    
                 while len(pieces) != 0:
-                    for piece in range(len(pieces)):
-                        key = pieces[piece]
-                        x,y = piece_positions[key]
+                    for key in range(len(pieces)):
+                        for row in new_board:
+                            print("  ".join(row))
+                        print("\n")
+                        print(moves)
+                        piece = pieces[key]
+                        ori_x,ori_y = piece_positions[piece]
+                        x,y = pos_pieces(new_board)[piece]
                         if x-1 != -1 and new_board[x-1][y] != "3" and new_board[x-1][y][0] != "1": #se tiverem 2 na mesma coluna isto dá errado
                             new_board[x-1][y] = key
+                            new_board[x][y] = "0"
                         else:
-                            pieces.remove(key)    
+                            pieces.remove(piece)    
                 if new_board in visited:
                     continue
                 else:
@@ -136,15 +137,14 @@ def do_move(check_move, pos_piece,board):
                 memo1.append(new_board)
             elif moves[j] == "move_down":
                 pieces.reverse()           
-                for value in piece_positions.values():
-                    x,y = value
-                    new_board[x+1][y] = "0"    
                 while len(pieces) != 0:
                     for piece in range(len(pieces)):
-                        key = pieces[piece]
-                        x,y = piece_positions[key]
+                        key = pieces[key]
+                        ori_x,ori_y = piece_positions[key]
+                        x,y = pos_pieces(new_board)[key]
                         if x+1 != len(new_board) and new_board[x+1][y] != "3" and new_board[x+1][y][0] != "1": #se tiverem 2 na mesma coluna isto dá errado
                             new_board[x+1][y] = key
+                            new_board[x][y] = "0"
                         else:
                             pieces.remove(key)    
                 if new_board in visited:
@@ -152,16 +152,15 @@ def do_move(check_move, pos_piece,board):
                 else:
                     visited.append(new_board)
                 memo1.append(new_board)
-            elif moves[j] == "move_left":
-                for value in piece_positions.values():
-                    x,y = value
-                    new_board[x][y] = "0"    
+            elif moves[j] == "move_left":  
                 while len(pieces) != 0:
                     for piece in range(len(pieces)):
-                        key = pieces[piece]
-                        x,y = piece_positions[key]
+                        key = pieces[key]
+                        ori_x,ori_y = piece_positions[key]
+                        x,y = pos_pieces(new_board)[key]
                         if y-1 != -1 and new_board[x][y-1] != "3" and new_board[x][y-1][0] != "1": #se tiverem 2 na mesma coluna isto dá errado
                             new_board[x][y-1] = key
+                            new_board[x][y] = "0"
                         else:
                             pieces.remove(key)    
                 if new_board in visited:
@@ -170,16 +169,15 @@ def do_move(check_move, pos_piece,board):
                     visited.append(new_board)
                 memo1.append(new_board)
             elif moves[j] == "move_right":
-                pieces.reverse()
-                for value in piece_positions.values():
-                    x,y = value
-                    new_board[x][y] = "0"    
+                pieces.reverse()  
                 while len(pieces) != 0:
                     for piece in range(len(pieces)):
-                        key = pieces[piece]
-                        x,y = piece_positions[key]
+                        key = pieces[key]
+                        ori_x,ori_y = piece_positions[key]
+                        x,y = pos_pieces(new_board)[key]
                         if y+1 != len(new_board) and new_board[x][y+1] != "3" and new_board[x][y+1][0] != "1": #se tiverem 2 na mesma coluna isto dá errado
                             new_board[x][y+1] = key
+                            new_board[x][y] = "0"
                         else:
                             pieces.remove(key)    
                 if new_board in visited:
@@ -210,3 +208,5 @@ print_board(memo)
 print(f"counter: {counter}\n")
 do_move(check_move,pos_pieces,board)
 print_board(memo1)
+
+
