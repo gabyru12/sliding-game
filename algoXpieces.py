@@ -96,11 +96,7 @@ memo = [board]
 memo1 = [] #memoriza estados do tabuleiro para dar print
 visited = [board] 
 history = {}
-#counter = 0
-
-#daqui pa cima deve tar fixe
-#<---------------------------------------------------------------------------------->
-#daqui pa baixo preciso acrescentar cenas
+counter = 0
 
 # Faz o movimento e retorna novos estados para memo1 
 def do_move(used_pieces,list_finish,pos_finish,check_move, pos_piece,board,solution_check):
