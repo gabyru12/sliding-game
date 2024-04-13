@@ -96,7 +96,7 @@ memo = [board]
 memo1 = [] #memoriza estados do tabuleiro para dar print
 visited = [board] 
 history = {}
-counter = 0
+#counter = 0
 
 #daqui pa cima deve tar fixe
 #<---------------------------------------------------------------------------------->
@@ -123,35 +123,19 @@ def do_move(used_pieces,list_finish,pos_finish,check_move, pos_piece,board,solut
                     for row in range(len(new_board)):
                         for col in range(len(new_board)):
                             if new_board[row][col][0] == "1":
-                                if row-1 > -1 and new_board[row-1][col] != "3" and new_board[row-1][col][0] != "1": #se tiverem 2 na mesma coluna isto dá errado
+                                if row-1 > -1 and new_board[row-1][col] != "3" and new_board[row-1][col][0] != "1": 
                                     new_board[row-1][col] = new_board[row][col]
                                     new_board[row][col] = "0"
                     update_finish(new_board,board)    
-                if new_board in visited:
-                    continue
-                else:
-                    visited.append(new_board)
-                    history[tuple(tuple(row) for row in memo[i])] = (new_board,moves[j]) 
-                memo1.append(new_board)
-                pieces = used_pieces(new_board)
-                piece_postition = pos_pieces(new_board)
             elif moves[j] == "move_down":
                 for k in range(len(new_board)):
                     for row in range(len(new_board)):
                         for col in range(len(new_board)):
                             if new_board[row][col][0] == "1":
-                                if row+1 < len(board) and new_board[row+1][col] != "3" and new_board[row+1][col][0] != "1": #se tiverem 2 na mesma coluna isto dá errado
+                                if row+1 < len(board) and new_board[row+1][col] != "3" and new_board[row+1][col][0] != "1": 
                                     new_board[row+1][col] = new_board[row][col]
                                     new_board[row][col] = "0" 
                     update_finish(new_board,board)   
-                if new_board in visited:
-                    continue
-                else:
-                    visited.append(new_board)
-                    history[tuple(tuple(row) for row in memo[i])] = (new_board,moves[j]) 
-                memo1.append(new_board)
-                pieces = used_pieces(new_board)
-                piece_postition = pos_pieces(new_board)
             elif moves[j] == "move_left":
                 for k in range(len(new_board)):
                     for row in range(len(new_board)):
@@ -161,14 +145,6 @@ def do_move(used_pieces,list_finish,pos_finish,check_move, pos_piece,board,solut
                                     new_board[row][col-1] = new_board[row][col]
                                     new_board[row][col] = "0"
                     update_finish(new_board,board)    
-                if new_board in visited:
-                    continue
-                else:
-                    visited.append(new_board)
-                    history[tuple(tuple(row) for row in memo[i])] = (new_board,moves[j]) 
-                memo1.append(new_board)
-                pieces = used_pieces(new_board)
-                piece_postition = pos_pieces(new_board)
             elif moves[j] == "move_right":
                 for k in range(len(new_board)):
                     for row in range(len(new_board)):
@@ -178,14 +154,14 @@ def do_move(used_pieces,list_finish,pos_finish,check_move, pos_piece,board,solut
                                     new_board[row][col+1] = new_board[row][col]
                                     new_board[row][col] = "0"    
                     update_finish(new_board,board)    
-                if new_board in visited:
+            if new_board in visited:
                     continue
-                else:
-                    visited.append(new_board)
-                    history[tuple(tuple(row) for row in memo[i])] = (new_board,moves[j]) 
+            else:
+                visited.append(new_board)
                 memo1.append(new_board)
                 pieces = used_pieces(new_board)
                 piece_postition = pos_pieces(new_board)
+                history[tuple(tuple(row) for row in new_board)] = (memo[i],moves[j]) 
             if solution_check(pieces,finish,piece_postition,finish_position):
                 flag = True
                 print("Solução encontrada\n")
@@ -194,33 +170,29 @@ def do_move(used_pieces,list_finish,pos_finish,check_move, pos_piece,board,solut
         print("Solução não encontrada")
     counter += 1
 
-#Está a falhar:
-    #dentre 72 posições no visited só 46 estão no history.keys() e dentre esses 46 só retorna 3 movimentos dentre 14 que deveriam haver no puzzle 48 advanced
 def retrace_steps(history, visited, memo1):
     solution_path = [memo1[-1]]
     moves = []
-    counter = 1
     for i in range(len(visited)-1, -1, -1):
         tupled_board = tuple(tuple(row) for row in visited[i])
-        print(counter)
+        tupled_solution_path = tuple(tuple(row) for row in solution_path[-1])
         if tupled_board in history:
-            if history[tupled_board][0] == solution_path[-1]:
-                solution_path.append(visited[i])
+            if tupled_board == tupled_solution_path:
+                print(i)
+                solution_path.append(history[tupled_board][0])
                 moves.append(history[tupled_board][1])
-            counter += 1
     solution_path.reverse()
     moves.reverse()
     return solution_path, moves
 
 #print do tabuleiro para análise
 def print_board(memo):
-    for i in range(len(memo)):
-        for row in memo[i]:
+        for row in memo:
             print("  ".join(row))
         print("\n")
 
 print("Initial Board:")
-print_board(memo)
+#print_board(memo)
 do_move(used_pieces,list_finish,pos_finish,check_move,pos_pieces,board,solution_check)
 do_move(used_pieces,list_finish,pos_finish,check_move,pos_pieces,board,solution_check)
 do_move(used_pieces,list_finish,pos_finish,check_move,pos_pieces,board,solution_check)
@@ -235,6 +207,10 @@ do_move(used_pieces,list_finish,pos_finish,check_move,pos_pieces,board,solution_
 do_move(used_pieces,list_finish,pos_finish,check_move,pos_pieces,board,solution_check)
 do_move(used_pieces,list_finish,pos_finish,check_move,pos_pieces,board,solution_check)
 do_move(used_pieces,list_finish,pos_finish,check_move,pos_pieces,board,solution_check)
+
 solution_path,moves = retrace_steps(history, visited, memo1)
+print(len(visited))
+print(len(history))
 for i in range(len(solution_path)):
-    print(solution_path[i])
+    print_board(solution_path[i])
+print(moves)
