@@ -1,15 +1,13 @@
 import copy
 # Cria tabuleiro
-#puzzle 47 Normal
 board = [
-    ["3","3","0","3"],
-    ["0","3","0","1r1"],
-    ["2r1","3","1r2","3"],
-    ["0","0","0","2r2"]
+    ["0","3","0","0","2g1"],
+    ["3","0","0","3","1r1"],
+    ["1g2","0","0","0","0"],
+    ["0","3","0","0","0"],
+    ["0","2r2","3","0","0"]
     ]
 
-possible_pieces = ["1r1","1g1","1b1","1r2","1g2","1b2","1r3","1g3","1b3"]
-respective_finish = ["2r1","2g1","2b1","2r2","2g2","2b2","2r3","2g3","2b3"]
 # lista das peças usadas                
 def used_pieces(board):
     pieces = []
@@ -62,7 +60,9 @@ def solution_check(pieces,winning_points,pos_pieces,pos_finish):
     for i in range(len(pieces)):
         key = pieces[i]
         key1 = winning_points[i]
-        if pos_pieces[key] != pos_finish[key1]:
+        if pieces[i][1] != winning_points[i][1]:
+            return False
+        elif pos_pieces[key] != pos_finish[key1]:
             return False
     return True
 
@@ -200,6 +200,12 @@ def print_board(memo):
 
 print("Initial Board:")
 print_board(memo)
+do_move(used_pieces,list_finish,pos_finish,check_move,pos_pieces,board,solution_check)
+do_move(used_pieces,list_finish,pos_finish,check_move,pos_pieces,board,solution_check)
+do_move(used_pieces,list_finish,pos_finish,check_move,pos_pieces,board,solution_check)
+do_move(used_pieces,list_finish,pos_finish,check_move,pos_pieces,board,solution_check)
+do_move(used_pieces,list_finish,pos_finish,check_move,pos_pieces,board,solution_check)
+do_move(used_pieces,list_finish,pos_finish,check_move,pos_pieces,board,solution_check)
 do_move(used_pieces,list_finish,pos_finish,check_move,pos_pieces,board,solution_check)
 do_move(used_pieces,list_finish,pos_finish,check_move,pos_pieces,board,solution_check)
 do_move(used_pieces,list_finish,pos_finish,check_move,pos_pieces,board,solution_check)
