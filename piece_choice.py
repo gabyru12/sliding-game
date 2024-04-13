@@ -102,23 +102,28 @@ def draw_board(size,board,mx,my):
                 pygame.draw.rect(screen, "green", ((margin_x + col * (square_size + 2)), (margin_y + row * (square_size + 2)), square_size, square_size))
             if board[row][col][0:2] == "1b":
                 pygame.draw.rect(screen, "blue", ((margin_x + col * (square_size + 2)), (margin_y + row * (square_size + 2)), square_size, square_size))
+            if board[row][col][0:2] == "2r":
+                pygame.draw.rect(screen, "red", ((margin_x + col * (square_size + 2)), (margin_y + row * (square_size + 2)), square_size, square_size),2)
+            if board[row][col][0:2] == "2g":
+                pygame.draw.rect(screen, "green", ((margin_x + col * (square_size + 2)), (margin_y + row * (square_size + 2)), square_size, square_size),2)
+            if board[row][col][0:2] == "2b":
+                pygame.draw.rect(screen, "blue", ((margin_x + col * (square_size + 2)), (margin_y + row * (square_size + 2)), square_size, square_size),2)
 
-    pygame.draw.rect(screen, "black", (margin_x, margin_y, board_size, board_size),2)
-
+    pygame.draw.rect(screen, "black", (margin_x-2, margin_y-2, board_size+4, board_size+4),2)
 
     return margin_x, margin_y, square_size, rows, cols, board_size
 
 def draw_piece(screen, square_size, margin_x, margin_y, col_clicked, row_clicked, piece_color,size):
     rows, cols = map(int, size.split('x'))
-    board_size = 300 + 2 * (rows-1)
+    board_size = 300 + 2 * (rows-1) 
     pygame.draw.rect(screen, piece_color, ((margin_x + col_clicked * (square_size + 2)), (margin_y + row_clicked * (square_size + 2)), square_size, square_size))
-    pygame.draw.rect(screen, "black", (margin_x, margin_y, board_size, board_size),2)
+    pygame.draw.rect(screen, "black", (margin_x-2, margin_y-2, board_size+4, board_size+4),2)
 
 def draw_winning_point(screen, square_size, margin_x, margin_y, col_clicked, row_clicked, winning_point_color,size):
     rows, cols = map(int, size.split('x'))
-    board_size = 300 + 2 * (rows-1)
+    board_size = 300 + 2 * (rows-1) 
+    pygame.draw.rect(screen, "black", (margin_x-2, margin_y-2, board_size+4, board_size+4),2)
     pygame.draw.rect(screen, winning_point_color, ((margin_x + col_clicked * (square_size + 2)), (margin_y + row_clicked * (square_size + 2)), square_size, square_size),2)
-    pygame.draw.rect(screen, "black", (margin_x, margin_y, board_size, board_size),3)
     
 def choose_board(selected_size):
     run = True
@@ -255,19 +260,25 @@ def select_winning_points(counter_red,counter_green,counter_blue,spot_counter_re
 def put_pieces(selected_size):
     run = True
     selected_piece = None
-    selected_winning_point = None
+    selected_winning_point_red = False
+    selected_winning_point_green = False
+    selected_winning_point_blue = False
     board_lenght = int(selected_size[0])
     board = [["0" for _ in range(board_lenght)]for _ in range(board_lenght)]
 
     piece_color = "white"
-    winning_point_color = "white"
+    winning_point_color = None
     draw_piece_flag = True
     draw_finish_flag = False
 
-    counter = 0
+    counter_pieces = 0
+    counter_winning_points = 0
     counter_red, spot_counter_red = 0,0
     counter_green, spot_counter_green = 0,0
     counter_blue, spot_counter_blue = 0,0
+    counter_winning_point_red = 0
+    counter_winning_point_green = 0
+    counter_winning_point_blue = 0
 
     while run:
         screen.fill("light blue")  # light blue color
@@ -291,41 +302,35 @@ def put_pieces(selected_size):
                 click = True
 
         if draw_piece_flag:
-            button_x_start, button_y, button_width, button_height = select_pieces(counter)
-
-            if 0 <= col_clicked < cols and 0 <= row_clicked < rows:
-                draw_piece(screen, square_size, margin_x, margin_y, col_clicked, row_clicked, piece_color,selected_size)
+            button_x_start, button_y, button_width, button_height = select_pieces(counter_pieces)
 
             if click:
-                if button_x_start <= mx <= button_x_start + button_width and button_y <= my <= button_y + button_height:
-                    selected_piece = "red"
-                    piece_color = "red"
-                elif button_x_start + button_width + 50 <= mx <= button_x_start + button_width + 50 + button_width and button_y <= my <= button_y + button_height:
-                    selected_piece = "green"
-                    piece_color = "green"
-                elif button_x_start + 2 * (button_width + 50) <= mx <= button_x_start + 2 * (button_width + 50) + button_width and button_y <= my <= button_y + button_height:
-                    selected_piece = "blue"
-                    piece_color = "blue"
-                elif WIDTH - (button_width + 25) <= mx <= WIDTH - (button_width + 25) + button_width and HEIGHT - (button_height + 25) <= my <= HEIGHT - (button_height + 25) + button_height:
+                if WIDTH - (100 + 25) <= mx <= WIDTH - (100 + 25) + 100 and HEIGHT - (50 + 25) <= my <= HEIGHT - (50 + 25) + 50:
                     if draw_piece_flag == True:
                         draw_piece_flag = False
                         draw_finish_flag = True
-                if margin_x <= mx <= margin_x + board_size and margin_y <= my <= margin_y + board_size:
-                    if piece_color == "red":
-                        counter += 1
-                        counter_red += 1
-                        board[row_clicked][col_clicked] = "1r" 
-                    if piece_color == "green":
-                        counter += 1
-                        counter_green += 1
-                        board[row_clicked][col_clicked] = "1g"
-                    if piece_color == "blue":
-                        counter += 1
-                        counter_blue += 1
-                        board[row_clicked][col_clicked] = "1b"
+                if counter_pieces != 3:
+                    if button_x_start <= mx <= button_x_start + button_width and button_y <= my <= button_y + button_height:
+                        piece_color = "red"
+                    elif button_x_start + button_width + 50 <= mx <= button_x_start + button_width + 50 + button_width and button_y <= my <= button_y + button_height:
+                        piece_color = "green"
+                    elif button_x_start + 2 * (button_width + 50) <= mx <= button_x_start + 2 * (button_width + 50) + button_width and button_y <= my <= button_y + button_height:
+                        piece_color = "blue"
+                    if margin_x <= mx <= margin_x + board_size and margin_y <= my <= margin_y + board_size:
+                        if piece_color == "red":
+                            counter_pieces += 1
+                            counter_red += 1
+                            board[row_clicked][col_clicked] = "1r"+f"{counter_pieces}"
+                        if piece_color == "green":
+                            counter_pieces += 1
+                            counter_green += 1
+                            board[row_clicked][col_clicked] = "1g"+f"{counter_pieces}"
+                        if piece_color == "blue":
+                            counter_pieces += 1
+                            counter_blue += 1
+                            board[row_clicked][col_clicked] = "1b"+f"{counter_pieces}"
 
-            if counter == 3:
-                selected_piece = None
+            if counter_pieces == 3:
                 pygame.draw.line(screen, "black", (button_x_start, button_y), (button_x_start + button_width, button_y + button_height), 5)
                 pygame.draw.line(screen, "black", (button_x_start, button_y + button_height), (button_x_start + button_width, button_y), 5)
 
@@ -334,36 +339,56 @@ def put_pieces(selected_size):
 
                 pygame.draw.line(screen, "black", (button_x_start + 2 * (button_width + 50), button_y), (button_x_start + 2 * (button_width + 50) + button_width, button_y + button_height), 5)
                 pygame.draw.line(screen, "black", (button_x_start + 2 * (button_width + 50), button_y + button_height), (button_x_start + 2 * (button_width + 50) + button_width, button_y), 5)
+            else:
+                if 0 <= col_clicked < cols and 0 <= row_clicked < rows:
+                    draw_piece(screen, square_size, margin_x, margin_y, col_clicked, row_clicked, piece_color,selected_size)
 
+        #Draw winning points
         if draw_finish_flag:
             select_winning_points(counter_red,counter_green,counter_blue,spot_counter_red,spot_counter_green,spot_counter_blue)
-            if counter_red == spot_counter_red:
+            
+            #cross
+            if counter_winning_point_red == counter_red:
                 pygame.draw.line(screen, "black", (button_x_start, button_y), (button_x_start + button_width, button_y + button_height), 5)
                 pygame.draw.line(screen, "black", (button_x_start, button_y + button_height), (button_x_start + button_width, button_y), 5)
-            if counter_green == spot_counter_green:
+            elif click:
+                if button_x_start <= mx <= button_x_start + button_width and button_y <= my <= button_y + button_height:
+                        selected_winning_point_red = True
+                        winning_point_color = "red"
+                elif margin_x <= mx <= margin_x + board_size and margin_y <= my <= margin_y + board_size and winning_point_color == "red":
+                        counter_winning_points += 1
+                        counter_winning_point_red += 1
+                        board[row_clicked][col_clicked] = "2r"+f"{counter_winning_points}"
+
+            #cross            
+            if counter_winning_point_green == counter_green:
                 pygame.draw.line(screen, "black", (button_x_start + button_width + 50, button_y), (button_x_start + button_width + 50 + button_width, button_y + button_height), 5)
                 pygame.draw.line(screen, "black", (button_x_start + button_width + 50, button_y + button_height), (button_x_start + button_width + 50 + button_width, button_y), 5)
-            if counter_blue == spot_counter_blue:
+            elif click:
+                if button_x_start + button_width + 50 <= mx <= button_x_start + button_width + 50 + button_width and button_y <= my <= button_y + button_height:
+                    selected_winning_point_green = True
+                    winning_point_color = "green"
+                elif margin_x <= mx <= margin_x + board_size and margin_y <= my <= margin_y + board_size and winning_point_color == "green":
+                    counter_winning_points += 1
+                    counter_winning_point_green += 1
+                    board[row_clicked][col_clicked] = "2g"+f"{counter_winning_points}"
+
+            #cross
+            if counter_winning_point_blue == counter_blue:
                 pygame.draw.line(screen, "black", (button_x_start + 2 * (button_width + 50), button_y), (button_x_start + 2 * (button_width + 50) + button_width, button_y + button_height), 5)
                 pygame.draw.line(screen, "black", (button_x_start + 2 * (button_width + 50), button_y + button_height), (button_x_start + 2 * (button_width + 50) + button_width, button_y), 5)
-            if click:
-                if button_x_start <= mx <= button_x_start + button_width and button_y <= my <= button_y + button_height:
-                    selected_winning_point = "red"
-                    winning_point_color = "red"
-                elif button_x_start + button_width + 50 <= mx <= button_x_start + button_width + 50 + button_width and button_y <= my <= button_y + button_height:
-                    selected_piece = "green"
-                    piece_color = "green"
-                elif button_x_start + 2 * (button_width + 50) <= mx <= button_x_start + 2 * (button_width + 50) + button_width and button_y <= my <= button_y + button_height:
-                    selected_piece = "blue"
-                    piece_color = "blue"
-                if button_x_start <= mx <= button_x_start + button_width and button_y <= my <= button_y + button_height:
-                    selected_winning_point = "red"
-                elif button_x_start + button_width + 50 <= mx <= button_x_start + button_width + 50 + button_width and button_y <= my <= button_y + button_height:
-                    selected_winning_point = "green"
-                elif button_x_start + 2 * (button_width + 50) <= mx <= button_x_start + 2 * (button_width + 50) + button_width and button_y <= my <= button_y + button_height:
-                    selected_winning_point = "blue"
-                draw_winning_point(screen, square_size, margin_x, margin_y, col_clicked, row_clicked, selected_winning_point, selected_size)
+            elif click:
+                if button_x_start + 2 * (button_width + 50) <= mx <= button_x_start + 2 * (button_width + 50) + button_width and button_y <= my <= button_y + button_height:
+                    winning_point_color = "blue"
+                elif margin_x <= mx <= margin_x + board_size and margin_y <= my <= margin_y + board_size and winning_point_color == "blue":
+                    counter_winning_points += 1
+                    counter_winning_point_blue += 1
+                    board[row_clicked][col_clicked] = "2b"+f"{counter_winning_points}"
 
+            if counter_winning_point_red != counter_red or counter_winning_point_green != counter_green or counter_winning_point_blue != counter_blue and winning_point_color != None:
+                if 0 <= col_clicked < cols and 0 <= row_clicked < rows:        
+                    draw_winning_point(screen, square_size, margin_x, margin_y, col_clicked, row_clicked, winning_point_color, selected_size)
+            
         button_next = pygame.Rect(WIDTH - (100 + 25), HEIGHT - (50 + 25), 100, 50)
         pygame.draw.rect(screen, "green", button_next)
         pygame.draw.rect(screen, "black", button_next,2)
