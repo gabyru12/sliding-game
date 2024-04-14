@@ -1,5 +1,6 @@
 import copy
 
+#lista das peças usadas
 def used_pieces(board):
     pieces = []
     for i in range(len(board)):
@@ -8,6 +9,7 @@ def used_pieces(board):
                 pieces.append(board[i][j])
     return pieces
 
+#lista das winning points
 def list_finish(board):
     pieces = []
     for i in range(len(board)):
@@ -36,7 +38,7 @@ def pos_finish(board):
         return pos_finishes
     return 0
 
-# Verifica se soução já foi encontrada
+#Verifica se o estado currente é solução
 def solution_check(pieces,winning_points,pos_pieces,pos_finish):
     for i in range(len(pieces)):
         key = pieces[i]
@@ -47,13 +49,14 @@ def solution_check(pieces,winning_points,pos_pieces,pos_finish):
             return False
     return True
 
+#No caso de uma peça estiver em cima do winning point, o winning point vai desaparecer da matriz do tabuleiro e para que no caso de a peça sair do local winning point, esta função irá garantir que ele apareça de novo
 def update_finish(new_board,board):
     for row in range(len(board)):
         for col in range(len(board)):
             if board[row][col][0] == "2" and new_board[row][col] == "0":
                     new_board[row][col] = board[row][col]
 
-# Dá os movimentos possíveis
+# Dá os movimentos possíveis num estado
 def check_move(pos_pieces,pieces,new_board,board):
     moves_bool = {"move_up": False, "move_down": False, "move_left": False, "move_right": False}
     piece_positions = pos_pieces(new_board) #posição das peças usadas
@@ -73,12 +76,19 @@ def check_move(pos_pieces,pieces,new_board,board):
             moves.append(key)
     return moves
 
+#n-1 (penultimo estado de profundidade da arvore de estados)
 memo = []
-memo1 = [] #memoriza estados do tabuleiro para dar print
+#n (último estado de profundidade da arvore de estados)
+memo1 = []
+#estados de tabuleiro já visitados
 visited = [] 
+#historico dos movimento realizados a partir de um estado pai e o estado filho que geraram
 history = {}
+#contador de movimentos até à solução ou até não encontrar mais estados novos
 counter = 0
+#verifica se a solução já foi encontrada: Yes if True
 solution = False
+#verifica se a solução não tem solução: Yes if True
 solution_not_found = False
 
 # Faz o movimento e retorna novos estados para memo1 
@@ -152,6 +162,7 @@ def do_move(used_pieces,list_finish,pos_finish, check_move, pos_pieces,board,sol
     counter += 1
     return
 
+#dá a lista de movimentos realizados e a sequência de estados até encontrar a solução
 def retrace_steps(history, visited, memo1):
     solution_path = [memo1[-1]]
     moves = []
@@ -166,6 +177,7 @@ def retrace_steps(history, visited, memo1):
     moves.reverse()
     return solution_path, moves
 
+#onde a magia acontece
 def breath_first_search(do_move,used_pieces,list_finish,pos_finish,check_move, pos_pieces,solution_check,board):
     global memo,memo1,visited,history,solution,solution_not_found
     counter = 0
