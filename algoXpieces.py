@@ -1,14 +1,5 @@
 import copy
-# Cria tabuleiro
-board = [
-    ["0","3","0","0","2g1"],
-    ["3","0","0","3","1r1"],
-    ["1g2","0","0","0","0"],
-    ["0","3","0","0","0"],
-    ["0","2r2","3","0","0"]
-    ]
 
-# lista das peças usadas                
 def used_pieces(board):
     pieces = []
     for i in range(len(board)):
@@ -33,16 +24,6 @@ def pos_pieces(boardstate):
             if boardstate[i][j][0] == "1":
                 pos_pieces[boardstate[i][j]] = (i,j)
     return pos_pieces
-
-def pos_finish(board):
-    pos_finishes = {}
-    for i in range(len(board)):
-        for j in range(len(board[i])):
-            if board[i][j][0] == "2":
-                pos_finishes[board[i][j]] = (i,j)
-    if len(pos_finishes) != 0:
-        return pos_finishes
-    return 0
 
 # Dá a posição das posições finais
 def pos_finish(board):
@@ -92,15 +73,17 @@ def check_move(pos_pieces,pieces,new_board,board):
             moves.append(key)
     return moves
 
-memo = [board]
+memo = []
 memo1 = [] #memoriza estados do tabuleiro para dar print
-visited = [board] 
+visited = [] 
 history = {}
 counter = 0
+solution = False
+solution_not_found = False
 
 # Faz o movimento e retorna novos estados para memo1 
-def do_move(used_pieces,list_finish,pos_finish,check_move, pos_piece,board,solution_check):
-    global memo,memo1,counter
+def do_move(used_pieces,list_finish,pos_finish, check_move, pos_pieces,board,solution_check):
+    global memo,memo1,counter,solution,solution_not_found
     flag = False
     pieces = used_pieces(board)
     finish = list_finish(board)
@@ -160,11 +143,14 @@ def do_move(used_pieces,list_finish,pos_finish,check_move, pos_piece,board,solut
                 history[tuple(tuple(row) for row in new_board)] = (memo[i],moves[j]) 
             if solution_check(pieces,finish,piece_postition,finish_position):
                 flag = True
+                solution = True
                 print("Solução encontrada\n")
                 break
     if memo1 == []:
         print("Solução não encontrada")
+        solution_not_found = True
     counter += 1
+    return
 
 def retrace_steps(history, visited, memo1):
     solution_path = [memo1[-1]]
@@ -174,39 +160,21 @@ def retrace_steps(history, visited, memo1):
         tupled_solution_path = tuple(tuple(row) for row in solution_path[-1])
         if tupled_board in history:
             if tupled_board == tupled_solution_path:
-                print(i)
                 solution_path.append(history[tupled_board][0])
                 moves.append(history[tupled_board][1])
     solution_path.reverse()
     moves.reverse()
     return solution_path, moves
 
-#print do tabuleiro para análise
-def print_board(memo):
-        for row in memo:
-            print("  ".join(row))
-        print("\n")
-
-print("Initial Board:")
-#print_board(memo)
-do_move(used_pieces,list_finish,pos_finish,check_move,pos_pieces,board,solution_check)
-do_move(used_pieces,list_finish,pos_finish,check_move,pos_pieces,board,solution_check)
-do_move(used_pieces,list_finish,pos_finish,check_move,pos_pieces,board,solution_check)
-do_move(used_pieces,list_finish,pos_finish,check_move,pos_pieces,board,solution_check)
-do_move(used_pieces,list_finish,pos_finish,check_move,pos_pieces,board,solution_check)
-do_move(used_pieces,list_finish,pos_finish,check_move,pos_pieces,board,solution_check)
-do_move(used_pieces,list_finish,pos_finish,check_move,pos_pieces,board,solution_check)
-do_move(used_pieces,list_finish,pos_finish,check_move,pos_pieces,board,solution_check)
-do_move(used_pieces,list_finish,pos_finish,check_move,pos_pieces,board,solution_check)
-do_move(used_pieces,list_finish,pos_finish,check_move,pos_pieces,board,solution_check)
-do_move(used_pieces,list_finish,pos_finish,check_move,pos_pieces,board,solution_check)
-do_move(used_pieces,list_finish,pos_finish,check_move,pos_pieces,board,solution_check)
-do_move(used_pieces,list_finish,pos_finish,check_move,pos_pieces,board,solution_check)
-do_move(used_pieces,list_finish,pos_finish,check_move,pos_pieces,board,solution_check)
-
-solution_path,moves = retrace_steps(history, visited, memo1)
-print(len(visited))
-print(len(history))
-for i in range(len(solution_path)):
-    print_board(solution_path[i])
-print(moves)
+def breath_first_search(do_move,used_pieces,list_finish,pos_finish,check_move, pos_pieces,solution_check,board):
+    global memo,memo1,visited,history,solution,solution_not_found
+    counter = 0
+    while solution == False and solution_not_found == False:
+        do_move(used_pieces,list_finish,pos_finish,check_move, pos_pieces, board,solution_check)
+        counter +=1
+        if memo1 != []:
+            solution_path,moves = retrace_steps(history, visited, memo1) 
+        else:
+            moves = None
+            solution_path = None
+    return counter,moves,solution_path
