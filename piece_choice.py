@@ -1,5 +1,6 @@
 import pygame
 import sys
+from levels import levels
 
 # Inicializando Pygame
 pygame.init()
@@ -7,7 +8,7 @@ pygame.init()
 # Configurações da janela
 WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Menu de Tabuleiro")
+pygame.display.set_caption("Match The Tiles: Sliding Game")
 
 selected_size = "4x4"
 
@@ -48,11 +49,19 @@ def main_menu():
         click = False
         mx,my = pygame.mouse.get_pos()
         screen.fill("light blue")
+
+        #Desenhar o botão "Create your board"
         rec_width,rec_height = 270,60
         board_creator_rec = pygame.draw.rect(screen,"grey",(WIDTH/2-rec_width//2,HEIGHT/3-rec_height//2,rec_width,rec_height), 0)
         board_creator_border = pygame.draw.rect(screen,"black",(WIDTH/2-rec_width//2,HEIGHT/3-rec_height//2,rec_width,rec_height), 5)
         board_creator = font.render("Create your board",1,"black")
         screen.blit(board_creator, (WIDTH/2 - board_creator.get_width()/2,HEIGHT/3 - board_creator.get_height()/2))
+
+        # Desenhar o botão "Levels"
+        levels_rec = pygame.draw.rect(screen, "grey", (WIDTH/2 - rec_width//2, HEIGHT/2 - rec_height//2, rec_width, rec_height), 0)
+        levels_border = pygame.draw.rect(screen, "black", (WIDTH/2 - rec_width//2, HEIGHT/2 - rec_height//2, rec_width, rec_height), 5)
+        levels_text = font.render("Levels", 1, "black")
+        screen.blit(levels_text, (WIDTH/2 - levels_text.get_width()/2, HEIGHT/2 - levels_text.get_height()/2))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -62,14 +71,124 @@ def main_menu():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 click = True
 
+        #Verificar clique no botão "Create your board"
         if board_creator_rec.collidepoint(mx,my):
             board_creator_border = pygame.draw.rect(screen,"yellow",(WIDTH/2-rec_width//2,HEIGHT/3-rec_height//2,rec_width,rec_height), 5)
             if click == True:
                 run = False
                 choose_board(selected_size)
 
+        #Verificar o clique no botão "Levels"
+        if levels_rec.collidepoint((mx, my)):
+            levels_border = pygame.draw.rect(screen, "yellow", (WIDTH/2 - rec_width//2, HEIGHT/2 - rec_height//2, rec_width, rec_height), 5)
+            if click:
+                run = False
+                show_levels()
+
         pygame.display.update()
 
+def show_levels():
+    run = True
+    while run:
+        screen.fill("light blue")
+        
+        # Desenhar os botões dos níveis
+        button_width, button_height = 50, 50
+        button_padding = 10
+        rows, cols = 6, 5
+        start_x = (WIDTH - (cols * (button_width + button_padding))) // 2
+        start_y = (HEIGHT - (rows * (button_height + button_padding))) // 2
+        level_number = 1
+        for row in range(rows):
+            for col in range(cols):
+                button_rect = pygame.Rect(start_x + col * (button_width + button_padding),
+                                          start_y + row * (button_height + button_padding),
+                                          button_width, button_height)
+                pygame.draw.rect(screen, "grey", button_rect)
+                font = pygame.font.Font(None, 36)
+                text = font.render(str(level_number), True, "black")
+                text_rect = text.get_rect(center=button_rect.center)
+                screen.blit(text, text_rect)
+                level_number += 1
+
+        # Verificar cliques nos botões dos níveis
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mx, my = pygame.mouse.get_pos()
+                for row in range(rows):
+                    for col in range(cols):
+                        button_rect = pygame.Rect(start_x + col * (button_width + button_padding),
+                                                  start_y + row * (button_height + button_padding),
+                                                  button_width, button_height)
+                        if button_rect.collidepoint(mx, my):
+                            level_number = row * cols + col + 1
+                            show_board(levels[level_number - 1])  # Chama a função show_board com o nível selecionado
+
+        pygame.display.update()
+
+def show_board(level):
+    run = True
+    while run:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+                pygame.quit()
+                sys.exit()
+
+        screen.fill("light blue")
+
+        draw_board1(level)
+
+        pygame.display.update()
+
+#Desenhar tabuleiro dos "Levels"
+def draw_board1(board):
+    # Dividir o tamanho em linhas e colunas
+    rows,cols = len(board),len(board)
+
+    # Calcula o tamanho do tabuleiro
+    board_size = 300 + 2 * (rows-1) 
+    if rows == 7:
+        board_size -= rows-1
+
+    # Calcular o tamanho dos quadrados
+    square_size = 300 // rows
+
+    # Calcula a margem para centralizar o tabuleiro
+    margin_x = WIDTH // 2 - board_size // 2
+    margin_y = HEIGHT // 2 - board_size // 2
+
+    # Desenhar o tabuleiro
+    pygame.draw.rect(screen, "white", (margin_x, margin_y, board_size, board_size))
+    for row in range(rows - 1):
+        pygame.draw.line(screen, "black", (margin_x, (margin_y + (row + 1) * square_size + row * 2)), (margin_x + board_size - 1, (margin_y + (row + 1) * square_size + row * 2)), 2)
+    for col in range(cols - 1):
+        pygame.draw.line(screen, "black", ((margin_x + (col + 1) * square_size + col * 2), margin_y), ((margin_x + (col + 1) * square_size + col * 2), margin_y + board_size - 1), 2)
+
+    for row in range(len(board)):
+        for col in range(len(board)):
+            if board[row][col][0:2] == "1r":
+                pygame.draw.rect(screen, "red", ((margin_x + col * (square_size + 2)), (margin_y + row * (square_size + 2)), square_size, square_size))
+            elif board[row][col][0:2] == "1g":
+                pygame.draw.rect(screen, "green", ((margin_x + col * (square_size + 2)), (margin_y + row * (square_size + 2)), square_size, square_size))
+            elif board[row][col][0:2] == "1b":
+                pygame.draw.rect(screen, "blue", ((margin_x + col * (square_size + 2)), (margin_y + row * (square_size + 2)), square_size, square_size))
+            elif board[row][col][0:2] == "2r":
+                pygame.draw.rect(screen, "red", ((margin_x + col * (square_size + 2)), (margin_y + row * (square_size + 2)), square_size, square_size),2)
+            elif board[row][col][0:2] == "2g":
+                pygame.draw.rect(screen, "green", ((margin_x + col * (square_size + 2)), (margin_y + row * (square_size + 2)), square_size, square_size),2)
+            elif board[row][col][0:2] == "2b":
+                pygame.draw.rect(screen, "blue", ((margin_x + col * (square_size + 2)), (margin_y + row * (square_size + 2)), square_size, square_size),2)
+            elif board[row][col] == "3":
+                pygame.draw.rect(screen, "black", ((margin_x + col * (square_size + 2)), (margin_y + row * (square_size + 2)), square_size, square_size))
+
+    pygame.draw.rect(screen, "black", (margin_x-2, margin_y-2, board_size+4, board_size+4),2)
+
+#Desenhar tabuleiro "Create your board"
 def draw_board(size,board,mx,my):
     # Dividir o tamanho em linhas e colunas
     rows, cols = map(int, size.split('x'))
@@ -223,37 +342,6 @@ def choose_board(selected_size):
         # Desenhar o tabuleiro
         if selected_size:
             draw_board(selected_size,board,mx,my)
-
-        pygame.display.update()
-
-def show_levels():
-    run = True
-    while run:
-        click = False
-        mx, my = pygame.mouse.get_pos()
-        screen.fill("light blue")
-
-        # Desenhar os botões dos níveis
-        button_size = 50
-        button_padding = 10
-        start_x = (WIDTH - 5 * (button_size + button_padding)) // 2
-        start_y = (HEIGHT - 6 * (button_size + button_padding)) // 2
-        for row in range(6):
-            for col in range(5):
-                level_number = row * 5 + col + 1
-                button_rect = pygame.Rect(start_x + col * (button_size + button_padding), start_y + row * (button_size + button_padding), button_size, button_size)
-                pygame.draw.rect(screen, "grey", button_rect, 0)
-                pygame.draw.rect(screen, "black", button_rect, 2)
-                level_text = font.render(str(level_number), True, "black")
-                screen.blit(level_text, (button_rect.centerx - level_text.get_width() // 2, button_rect.centery - level_text.get_height() // 2))
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                run = False
-                pygame.quit()
-                sys.exit()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                click = True
 
         pygame.display.update()
 
