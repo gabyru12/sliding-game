@@ -1,6 +1,7 @@
 import pygame
 import sys
 from levels import levels
+from algo import *
 
 # Inicializando Pygame
 pygame.init()
@@ -10,10 +11,11 @@ WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Match The Tiles: Sliding Game")
 
-selected_size = "4x4"
+selected_size = "5x5"
 
 # Fonte e tamanho do texto
 font = pygame.font.SysFont(None, 40)
+font_lower = pygame.font.SysFont(None, 10)
 
 def play():
     run = True
@@ -43,6 +45,7 @@ def play():
 
         pygame.display.update()
 
+# Escolha entre criar tabuleiro ou jogar os níveis (não implementado)
 def main_menu():
     run = True
     while run:
@@ -87,6 +90,7 @@ def main_menu():
 
         pygame.display.update()
 
+# Escolha entre os níveis de 1 a 30
 def show_levels():
     run = True
     while run:
@@ -130,6 +134,7 @@ def show_levels():
 
         pygame.display.update()
 
+# Mostra o tabuleiro do respetivo nível
 def show_board(level):
     run = True
     while run:
@@ -238,6 +243,7 @@ def draw_board(size,board,mx,my):
 
     return margin_x, margin_y, square_size, rows, cols, board_size
 
+# Desenha a peça sem colocá-la
 def draw_piece(screen, square_size, margin_x, margin_y, col_clicked, row_clicked, piece_color,size):
     rows, cols = map(int, size.split('x'))
     board_size = 300 + 2 * (rows-1) 
@@ -246,6 +252,7 @@ def draw_piece(screen, square_size, margin_x, margin_y, col_clicked, row_clicked
     pygame.draw.rect(screen, piece_color, ((margin_x + col_clicked * (square_size + 2)), (margin_y + row_clicked * (square_size + 2)), square_size, square_size))
     pygame.draw.rect(screen, "black", (margin_x-2, margin_y-2, board_size+4, board_size+4),2)
 
+# Desenha o winning point sem colocá-lo
 def draw_winning_point(screen, square_size, margin_x, margin_y, col_clicked, row_clicked, winning_point_color, size):
     rows, cols = map(int, size.split('x'))
     board_size = 300 + 2 * (rows-1) 
@@ -254,6 +261,7 @@ def draw_winning_point(screen, square_size, margin_x, margin_y, col_clicked, row
     pygame.draw.rect(screen, "black", (margin_x-2, margin_y-2, board_size+4, board_size+4),2)
     pygame.draw.rect(screen, winning_point_color, ((margin_x + col_clicked * (square_size + 2)), (margin_y + row_clicked * (square_size + 2)), square_size, square_size),2)
 
+# Desenha o obstáculo sem colocá-lo
 def draw_obstacle(screen,square_size, margin_x, margin_y, col_clicked, row_clicked,obstacle_color, size):
     rows, cols = map(int, size.split('x'))
     board_size = 300 + 2 * (rows-1) 
@@ -262,6 +270,7 @@ def draw_obstacle(screen,square_size, margin_x, margin_y, col_clicked, row_click
     pygame.draw.rect(screen, obstacle_color, ((margin_x + col_clicked * (square_size + 2)), (margin_y + row_clicked * (square_size + 2)), square_size, square_size))
     pygame.draw.rect(screen, "black", (margin_x-2, margin_y-2, board_size+4, board_size+4),2)
     
+# Escolha do tamanho do tabuleiro
 def choose_board(selected_size):
     run = True
     board_size = int(selected_size[0])
@@ -345,6 +354,7 @@ def choose_board(selected_size):
 
         pygame.display.update()
 
+# Escolhe a cor da peça
 def select_pieces(counter):
     title_text = font.render("Position the pieces:", True, "black")
     screen.blit(title_text, (WIDTH // 2 - title_text.get_width() // 2, 50))
@@ -367,7 +377,7 @@ def select_pieces(counter):
 
     return button_x_start, button_y, button_width, button_height
 
-
+# Escolhe a cor do winning point
 def select_winning_points(counter_red,counter_green,counter_blue,counter_winning_point_red,counter_winning_point_green,counter_winning_point_blue):
     title_text = font.render("Position the winning points:", True, "black")
     screen.blit(title_text, (WIDTH // 2 - title_text.get_width() // 2, 50))
@@ -395,6 +405,7 @@ def select_winning_points(counter_red,counter_green,counter_blue,counter_winning
         counter_blue_text = font.render(f"{counter_winning_point_blue}/{counter_blue}",True,"black")
         screen.blit(counter_blue_text, (WIDTH - 50,150))
 
+# Seleciona o obstáculo
 def select_obstacle():
     title_text = font.render("Position the obstacles:", True, "black")
     screen.blit(title_text, (WIDTH // 2 - title_text.get_width() // 2, 50))
@@ -406,6 +417,7 @@ def select_obstacle():
     button_obstacle = pygame.Rect(button_x, button_y, button_width, button_height)
     pygame.draw.rect(screen, "black", button_obstacle)
 
+# Cria o tabuleiro
 def put_pieces(selected_size):
     run = True
     selected_piece = None
@@ -421,7 +433,6 @@ def put_pieces(selected_size):
     draw_piece_flag = True
     draw_finish_flag = False
     draw_obstacle_flag = False
-    apply_algorithm_flag = False
     turn = True
 
     counter_pieces = 0
@@ -437,16 +448,14 @@ def put_pieces(selected_size):
     winning_point_positions = []
     obstacle_positions = []
 
-    #clock = pygame.time.Clock()
-
     while run:
         screen.fill("light blue")  # light blue color
         mx,my = pygame.mouse.get_pos()
         margin_x, margin_y, square_size, rows, cols, board_size = draw_board(selected_size,board,mx,my)
         fake_col_clicked = int(((mx - margin_x) / square_size))
-        col_clicked = int(((mx - margin_x - fake_col_clicked * 2) / square_size))
+        col_clicked = int(((mx - margin_x - fake_col_clicked * 2) / square_size)) # dá a coluna de onde está o cursor do rato
         fake_row_clicked = int(((my - margin_y) / square_size))
-        row_clicked = int(((my - margin_y - fake_row_clicked * 2) / square_size))
+        row_clicked = int(((my - margin_y - fake_row_clicked * 2) / square_size)) # dá a fila de onde está o cursor do rato
         click = False
 
         for event in pygame.event.get():
@@ -465,20 +474,15 @@ def put_pieces(selected_size):
             elif event.type == pygame.MOUSEBUTTONUP:
                 turn = True
 
-        if apply_algorithm_flag:
-            title_text = font.render("Position the obstacles:", True, "black")
-            screen.blit(title_text, (WIDTH // 2 - title_text.get_width() // 2, 50))
-
-
-
-        #draw obstacle
+        # Mostra página para colocar obstáculos (if True)
         if draw_obstacle_flag:
             select_obstacle()
 
             if click:
-                if WIDTH - (100 + 25) <= mx <= WIDTH - (100 + 25) + 100 and HEIGHT - (50 + 25) <= my <= HEIGHT - (50 + 25) + 50 and draw_finish_flag:
+                if WIDTH - (100 + 25) <= mx <= WIDTH - (100 + 25) + 100 and HEIGHT - (50 + 25) <= my <= HEIGHT - (50 + 25) + 50 and draw_obstacle_flag:
                     draw_obstacle_flag = False
-                    apply_algorithm_flag = True
+                    run = False
+                    algorithm_page(selected_size,board)
 
                 elif WIDTH // 2 - 25 <= mx <= WIDTH // 2 +25 and button_y <= my <= button_y + 50:
                     obstacle_color = "black"
@@ -489,14 +493,14 @@ def put_pieces(selected_size):
             if 0 <= col_clicked < cols and 0 <= row_clicked < rows and (row_clicked,col_clicked) not in piece_positions and (row_clicked,col_clicked) not in winning_point_positions and (row_clicked,col_clicked) not in obstacle_positions and obstacle_color != "white":        
                 draw_obstacle(screen, square_size, margin_x, margin_y, col_clicked, row_clicked, obstacle_color, selected_size)
 
-        #Draw winning points
+        # Mostra página para colocar winning points (if True)
         if draw_finish_flag:
             select_winning_points(counter_red,counter_green,counter_blue,counter_winning_point_red,counter_winning_point_green,counter_winning_point_blue)
             
             if click and WIDTH - (100 + 25) <= mx <= WIDTH - (100 + 25) + 100 and HEIGHT - (50 + 25) <= my <= HEIGHT - (50 + 25) + 50 and draw_finish_flag and counter_winning_points == counter_pieces:
                     draw_finish_flag = False
                     draw_obstacle_flag = True
-            #cross
+            # Cross
             if counter_winning_point_red == counter_red:
                 pygame.draw.line(screen, "black", (button_x_start, button_y), (button_x_start + button_width, button_y + button_height), 5)
                 pygame.draw.line(screen, "black", (button_x_start, button_y + button_height), (button_x_start + button_width, button_y), 5)
@@ -511,7 +515,7 @@ def put_pieces(selected_size):
                     board[row_clicked][col_clicked] = "2r"+f"{counter_winning_points}"
                     winning_point_positions.append((row_clicked,col_clicked))
 
-            #cross            
+            # Cross            
             if counter_winning_point_green == counter_green:
                 pygame.draw.line(screen, "black", (button_x_start + button_width + 50, button_y), (button_x_start + button_width + 50 + button_width, button_y + button_height), 5)
                 pygame.draw.line(screen, "black", (button_x_start + button_width + 50, button_y + button_height), (button_x_start + button_width + 50 + button_width, button_y), 5)
@@ -526,7 +530,7 @@ def put_pieces(selected_size):
                     board[row_clicked][col_clicked] = "2g"+f"{counter_winning_points}"
                     winning_point_positions.append((row_clicked,col_clicked))
 
-            #cross
+            # Cross
             if counter_winning_point_blue == counter_blue:
                 pygame.draw.line(screen, "black", (button_x_start + 2 * (button_width + 50), button_y), (button_x_start + 2 * (button_width + 50) + button_width, button_y + button_height), 5)
                 pygame.draw.line(screen, "black", (button_x_start + 2 * (button_width + 50), button_y + button_height), (button_x_start + 2 * (button_width + 50) + button_width, button_y), 5)
@@ -545,7 +549,7 @@ def put_pieces(selected_size):
                 if 0 <= col_clicked < cols and 0 <= row_clicked < rows and (row_clicked,col_clicked) not in piece_positions and (row_clicked,col_clicked) not in winning_point_positions:        
                     draw_winning_point(screen, square_size, margin_x, margin_y, col_clicked, row_clicked, winning_point_color, selected_size)
 
-        #draw pieces
+        # MOstra a página de colocar as peças coloridas
         if draw_piece_flag:
             button_x_start, button_y, button_width, button_height = select_pieces(counter_pieces)
 
@@ -576,7 +580,7 @@ def put_pieces(selected_size):
                             counter_blue += 1
                             board[row_clicked][col_clicked] = "1b"+f"{counter_pieces}"
                             piece_positions.append((row_clicked,col_clicked))
-            #cross
+            # Cross
             if counter_pieces == 3:
                 pygame.draw.line(screen, "black", (button_x_start, button_y), (button_x_start + button_width, button_y + button_height), 5)
                 pygame.draw.line(screen, "black", (button_x_start, button_y + button_height), (button_x_start + button_width, button_y), 5)
@@ -596,5 +600,32 @@ def put_pieces(selected_size):
         text_next = font.render("Next", True, "black")
         screen.blit(text_next, (WIDTH - (100 + 25) + 100 // 2 - text_next.get_width() // 2,HEIGHT - (50 + 25) + 50 // 2 - text_next.get_height() // 2))
         pygame.display.update()
+
+
+# Dá o número de movimentos, os movimentos usados e os diferentes estados do tabuleiro se o tabuleiro tiver solução 
+def algorithm_page(selected_size,board):
+    run = True
+    memo.append(board)
+    visited.append(board)
+    counter,moves,solution_path = breath_first_search(do_move,used_pieces,list_finish,pos_finish,check_move, pos_pieces,solution_check,board)
+    print(f"Counter: {counter}")
+    print(f"Moves: {moves}")
+    if solution_path != None:
+        for i in range(len(solution_path)):
+            for row in solution_path[i]:
+                print(" ".join(row))
+            print("\n")
+    while run:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+                quit()
+                exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    run = False
+                    main_menu()
+
+    pygame.display.update()
 
 play()
