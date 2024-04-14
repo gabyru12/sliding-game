@@ -7,7 +7,7 @@ pygame.init()
 # Configurações da janela
 WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Menu de Tabuleiro")
+pygame.display.set_caption("Match the Tiles - Sliding Game")
 
 selected_size = "4x4"
 
