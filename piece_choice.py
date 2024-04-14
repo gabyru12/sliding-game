@@ -7,7 +7,7 @@ pygame.init()
 # Configurações da janela
 WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Match the Tiles - Sliding Game")
+pygame.display.set_caption("Menu de Tabuleiro")
 
 selected_size = "4x4"
 
@@ -86,8 +86,10 @@ def draw_board(size,board,mx,my):
     margin_x = WIDTH // 2 - board_size // 2
     margin_y = 250
 
-    col_clicked = int((mx - margin_x) // square_size)
-    row_clicked = int((my - margin_y) // square_size)
+    fake_col_clicked = int(((mx - margin_x) / square_size))
+    col_clicked = int(((mx - margin_x - fake_col_clicked * 2) / square_size))
+    fake_row_clicked = int(((my - margin_y) / square_size))
+    row_clicked = int(((my - margin_y - fake_row_clicked * 2) / square_size))
 
     # Desenhar o tabuleiro
     pygame.draw.rect(screen, "white", (margin_x, margin_y, board_size, board_size))
@@ -224,6 +226,37 @@ def choose_board(selected_size):
 
         pygame.display.update()
 
+def show_levels():
+    run = True
+    while run:
+        click = False
+        mx, my = pygame.mouse.get_pos()
+        screen.fill("light blue")
+
+        # Desenhar os botões dos níveis
+        button_size = 50
+        button_padding = 10
+        start_x = (WIDTH - 5 * (button_size + button_padding)) // 2
+        start_y = (HEIGHT - 6 * (button_size + button_padding)) // 2
+        for row in range(6):
+            for col in range(5):
+                level_number = row * 5 + col + 1
+                button_rect = pygame.Rect(start_x + col * (button_size + button_padding), start_y + row * (button_size + button_padding), button_size, button_size)
+                pygame.draw.rect(screen, "grey", button_rect, 0)
+                pygame.draw.rect(screen, "black", button_rect, 2)
+                level_text = font.render(str(level_number), True, "black")
+                screen.blit(level_text, (button_rect.centerx - level_text.get_width() // 2, button_rect.centery - level_text.get_height() // 2))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                click = True
+
+        pygame.display.update()
+
 def select_pieces(counter):
     title_text = font.render("Position the pieces:", True, "black")
     screen.blit(title_text, (WIDTH // 2 - title_text.get_width() // 2, 50))
@@ -245,6 +278,7 @@ def select_pieces(counter):
     screen.blit(counter_text, (WIDTH - 50,50))
 
     return button_x_start, button_y, button_width, button_height
+
 
 def select_winning_points(counter_red,counter_green,counter_blue,counter_winning_point_red,counter_winning_point_green,counter_winning_point_blue):
     title_text = font.render("Position the winning points:", True, "black")
@@ -299,6 +333,7 @@ def put_pieces(selected_size):
     draw_piece_flag = True
     draw_finish_flag = False
     draw_obstacle_flag = False
+    apply_algorithm_flag = False
     turn = True
 
     counter_pieces = 0
@@ -320,8 +355,10 @@ def put_pieces(selected_size):
         screen.fill("light blue")  # light blue color
         mx,my = pygame.mouse.get_pos()
         margin_x, margin_y, square_size, rows, cols, board_size = draw_board(selected_size,board,mx,my)
-        col_clicked = int((mx - margin_x) / square_size) 
-        row_clicked = int((my - margin_y) / square_size)
+        fake_col_clicked = int(((mx - margin_x) / square_size))
+        col_clicked = int(((mx - margin_x - fake_col_clicked * 2) / square_size))
+        fake_row_clicked = int(((my - margin_y) / square_size))
+        row_clicked = int(((my - margin_y - fake_row_clicked * 2) / square_size))
         click = False
 
         for event in pygame.event.get():
@@ -340,6 +377,12 @@ def put_pieces(selected_size):
             elif event.type == pygame.MOUSEBUTTONUP:
                 turn = True
 
+        if apply_algorithm_flag:
+            title_text = font.render("Position the obstacles:", True, "black")
+            screen.blit(title_text, (WIDTH // 2 - title_text.get_width() // 2, 50))
+
+
+
         #draw obstacle
         if draw_obstacle_flag:
             select_obstacle()
@@ -347,6 +390,8 @@ def put_pieces(selected_size):
             if click:
                 if WIDTH - (100 + 25) <= mx <= WIDTH - (100 + 25) + 100 and HEIGHT - (50 + 25) <= my <= HEIGHT - (50 + 25) + 50 and draw_finish_flag:
                     draw_obstacle_flag = False
+                    apply_algorithm_flag = True
+
                 elif WIDTH // 2 - 25 <= mx <= WIDTH // 2 +25 and button_y <= my <= button_y + 50:
                     obstacle_color = "black"
                 elif margin_x <= mx <= margin_x + board_size and margin_y <= my <= margin_y + board_size + col_clicked * 2 and obstacle_color == "black" and (row_clicked,col_clicked) not in piece_positions and (row_clicked,col_clicked) not in winning_point_positions and (row_clicked,col_clicked) not in obstacle_positions:
@@ -463,4 +508,5 @@ def put_pieces(selected_size):
         text_next = font.render("Next", True, "black")
         screen.blit(text_next, (WIDTH - (100 + 25) + 100 // 2 - text_next.get_width() // 2,HEIGHT - (50 + 25) + 50 // 2 - text_next.get_height() // 2))
         pygame.display.update()
+
 play()
