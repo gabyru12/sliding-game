@@ -1,7 +1,7 @@
 import pygame
 import sys
 from levels import levels
-from algo import *
+from algoritmo import *
 
 # Inicializando Pygame
 pygame.init()
