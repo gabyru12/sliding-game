@@ -1,4 +1,4 @@
-from algo import *
+from algoritmo import *
 from levels import *
 import copy
 
