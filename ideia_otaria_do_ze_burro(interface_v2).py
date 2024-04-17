@@ -16,6 +16,7 @@ selected_size = "5x5"
 
 # Fonte e tamanho do texto
 font = pygame.font.SysFont(None, 40)
+font_mid = pygame.font.SysFont(None, 20)
 font_lower = pygame.font.SysFont(None, 10)
 
 def play():
@@ -144,25 +145,37 @@ def show_levels():
 def show_board(level):
     run = True
     new_board = copy.deepcopy(level)
+    winning_points = list_finish(level)
+    pos_of_winning_points = pos_finish(level)
     counter = 0
     solved = False
     while run:
+        click = False
+        mx,my = pygame.mouse.get_pos()
         screen.fill("light blue")
         draw_level_board(new_board)
+
+        #desenha o botao reset
+        pygame.draw.rect(screen,"grey", (WIDTH-130,30,100,50),0,10)
+        pygame.draw.rect(screen,"black", (WIDTH-130,30,100,50),3,10)
+        reset_text = font.render("Reset",True,"black")
+        screen.blit(reset_text,(WIDTH - 80 - reset_text.get_width()//2, 55 - reset_text.get_height()//2))
+
         if not solved:
             pieces = used_pieces(new_board)
-            winning_points = list_finish(level)
-            pos_of_winning_points = pos_finish(level)
             pos_of_pieces = pos_pieces(new_board)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
                     quit()
                     exit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    click = True
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         run = False
                         show_levels()
+                    #movimento para esquerda
                     if event.key == pygame.K_LEFT:
                         current_state = pos_pieces(new_board)
                         for k in range(len(level)):
@@ -175,7 +188,8 @@ def show_board(level):
                                                 new_board[row][col] = "0"
                         update_finish(new_board,level) 
                         if current_state != pos_pieces(new_board):
-                            counter += 1                        
+                            counter += 1              
+                    #movimento para a direita
                     elif event.key == pygame.K_RIGHT:
                         current_state = pos_pieces(new_board)
                         for k in range(len(new_board)):
@@ -187,7 +201,8 @@ def show_board(level):
                                             new_board[row][col] = "0"
                         update_finish(new_board,level) 
                         if current_state != pos_pieces(new_board):
-                            counter += 1                                            
+                            counter += 1       
+                    #movimento para cima
                     elif event.key == pygame.K_UP:
                         current_state = pos_pieces(new_board)
                         for k in range(len(level)):
@@ -200,6 +215,7 @@ def show_board(level):
                         update_finish(new_board,level) 
                         if current_state != pos_pieces(new_board):
                             counter += 1
+                    #movimento para baixo
                     elif event.key == pygame.K_DOWN:
                         current_state = pos_pieces(new_board)
                         for k in range(len(level)):
@@ -212,9 +228,21 @@ def show_board(level):
                         update_finish(new_board,level)
                         if current_state != pos_pieces(new_board):
                             counter += 1
+
             if solution_check(pieces,winning_points,pos_of_pieces,pos_of_winning_points):
                 solved = True
+                draw_level_board(new_board)
+
+            if WIDTH - 130 < mx < WIDTH -30 and 30 < my < 80:
+                pygame.draw.rect(screen,"light grey", (WIDTH-130,30,100,50),0,10)
+                pygame.draw.rect(screen,"black", (WIDTH-130,30,100,50),3,10)
+                reset_text = font.render("Reset",True,"black")
+                screen.blit(reset_text,(WIDTH - 80 - reset_text.get_width()//2, 55 - reset_text.get_height()//2))
+                if click:
+                    new_board = copy.deepcopy(level)
+                    counter = 0
         else:
+            time.sleep(0.5)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
@@ -224,10 +252,10 @@ def show_board(level):
                     if event.key == pygame.K_ESCAPE:
                         run = False
                         show_levels()
-            pygame.draw.rect(screen,"grey", (WIDTH//2 - 200,HEIGHT//2 - 150,400,300))
-            pygame.draw.rect(screen,"black", (WIDTH//2 - 200,HEIGHT//2 - 150,400,300),5)
+            pygame.draw.rect(screen,"grey", (WIDTH//2 - 200,HEIGHT//2 + 150,400,125))
+            pygame.draw.rect(screen,"black", (WIDTH//2 - 200,HEIGHT//2 + 150,400,125),5)
             solved_text = font.render(f"SOLVED in {counter} moves",True,"black")
-            screen.blit(solved_text,(WIDTH//2 - solved_text.get_width()//2, HEIGHT//2 - solved_text.get_height()//2))
+            screen.blit(solved_text,(WIDTH//2 - solved_text.get_width()//2, HEIGHT//2 + 150 + 125//2 - solved_text.get_height()//2))
 
         pygame.display.update() 
 
@@ -246,7 +274,7 @@ def draw_level_board(board):
 
     # Calcula a margem para centralizar o tabuleiro
     margin_x = WIDTH // 2 - board_size // 2
-    margin_y = HEIGHT // 2 - board_size // 2
+    margin_y = HEIGHT // 2 - board_size // 2 - 40
 
     # Desenhar o tabuleiro
     pygame.draw.rect(screen, "white", (margin_x, margin_y, board_size, board_size))
