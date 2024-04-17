@@ -1,5 +1,7 @@
 import copy
 
+
+
 #lista das peças usadas
 def used_pieces(board):
     pieces = []
@@ -13,7 +15,7 @@ def used_pieces(board):
 def list_finish(board):
     pieces = []
     for i in range(len(board)):
-        for j in range(len(board[i])):
+        for j in range(len(board)):
             if board[i][j][0] == "2":
                 pieces.append(board[i][j])
     return pieces
@@ -31,7 +33,7 @@ def pos_pieces(boardstate):
 def pos_finish(board):
     pos_finishes = {}
     for i in range(len(board)):
-        for j in range(len(board[i])):
+        for j in range(len(board)):
             if board[i][j][0] == "2":
                 pos_finishes[board[i][j]] = (i,j)
     if len(pos_finishes) != 0:
@@ -76,24 +78,9 @@ def check_move(pos_pieces,pieces,new_board,board):
             moves.append(key)
     return moves
 
-#n-1 (penultimo estado de profundidade da arvore de estados)
-memo = []
-#n (último estado de profundidade da arvore de estados)
-memo1 = []
-#estados de tabuleiro já visitados
-visited = [] 
-#historico dos movimento realizados a partir de um estado pai e o estado filho que geraram
-history = {}
-#contador de movimentos até à solução ou até não encontrar mais estados novos
-counter = 0
-#verifica se a solução já foi encontrada: Yes if True
-solution = False
-#verifica se a solução não tem solução: Yes if True
-solution_not_found = False
 
 # Faz o movimento e retorna novos estados para memo1 
-def do_move(used_pieces,list_finish,pos_finish, check_move, pos_pieces,board,solution_check):
-    global memo,memo1,counter,solution,solution_not_found
+def do_move(used_pieces,list_finish,pos_finish, check_move, pos_pieces,board,solution_check,memo,memo1,visited,history,solution,solution_not_found):
     flag = False
     pieces = used_pieces(board)
     finish = list_finish(board)
@@ -159,8 +146,7 @@ def do_move(used_pieces,list_finish,pos_finish, check_move, pos_pieces,board,sol
     if memo1 == []:
         print("Solução não encontrada")
         solution_not_found = True
-    counter += 1
-    return
+    return memo,memo1,visited,history,solution,solution_not_found
 
 #dá a lista de movimentos realizados e a sequência de estados até encontrar a solução
 def retrace_steps(history, visited, memo1):
@@ -179,14 +165,19 @@ def retrace_steps(history, visited, memo1):
 
 #onde a magia acontece
 def breath_first_search(do_move,used_pieces,list_finish,pos_finish,check_move, pos_pieces,solution_check,board):
-    global memo,memo1,visited,history,solution,solution_not_found
+    memo = [board]
+    memo1 = []
+    visited = [board] 
+    history = {}
     counter = 0
+    solution = False
+    solution_not_found = False
     while solution == False and solution_not_found == False:
-        do_move(used_pieces,list_finish,pos_finish,check_move, pos_pieces, board,solution_check)
+        memo,memo1,visited,history,solution,solution_not_found = do_move(used_pieces,list_finish,pos_finish,check_move, pos_pieces, board,solution_check,memo,memo1,visited,history,solution,solution_not_found)
         counter +=1
-        if memo1 != []:
-            solution_path,moves = retrace_steps(history, visited, memo1) 
-        else:
-            moves = None
-            solution_path = None
+    if memo1 != []:
+        solution_path,moves = retrace_steps(history, visited, memo1) 
+    else:
+        moves = None
+        solution_path = None
     return counter,moves,solution_path
