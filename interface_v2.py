@@ -714,8 +714,6 @@ def put_pieces(selected_size):
 # Dá o número de movimentos, os movimentos usados e os diferentes estados do tabuleiro se o tabuleiro tiver solução 
 def algorithm_page(selected_size,board):
     run = True
-    memo.append(board)
-    visited.append(board)
     counter,moves,solution_path = breath_first_search(do_move,used_pieces,list_finish,pos_finish,check_move, pos_pieces,solution_check,board)
     print(f"Counter: {counter}\n")
     print(f"Moves: {moves}\n")
