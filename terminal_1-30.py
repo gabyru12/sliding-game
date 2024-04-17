@@ -121,5 +121,7 @@ while True:
                                 new_board[row+1][col] = new_board[row][col]
                                 new_board[row][col] = "0"
             update_finish(new_board,level)
+        elif move == "back":
+            break
         else:
             continue
