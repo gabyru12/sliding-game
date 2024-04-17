@@ -1,7 +1,5 @@
 import copy
 
-
-
 #lista das peças usadas
 def used_pieces(board):
     pieces = []
@@ -165,13 +163,13 @@ def retrace_steps(history, visited, memo1):
 
 #onde a magia acontece
 def breath_first_search(do_move,used_pieces,list_finish,pos_finish,check_move, pos_pieces,solution_check,board):
-    memo = [board]
-    memo1 = []
-    visited = [board] 
-    history = {}
-    counter = 0
-    solution = False
-    solution_not_found = False
+    memo = [board] #n-1 (penultimo estado de profundidade da arvore de estados)
+    memo1 = [] #n (último estado de profundidade da arvore de estados)
+    visited = [board] #estados de tabuleiro já visitados
+    history = {} #historico dos movimento realizados a partir de um estado pai e o estado filho que geraram
+    counter = 0 #contador de movimentos até à solução ou até não encontrar mais estados novos
+    solution = False #verifica se a solução já foi encontrada: Yes if True
+    solution_not_found = False #verifica se a solução não tem solução: Yes if True
     while solution == False and solution_not_found == False:
         memo,memo1,visited,history,solution,solution_not_found = do_move(used_pieces,list_finish,pos_finish,check_move, pos_pieces, board,solution_check,memo,memo1,visited,history,solution,solution_not_found)
         counter +=1
