@@ -731,9 +731,10 @@ def put_pieces(selected_size):
 
 # Dá o número de movimentos, os movimentos usados e os diferentes estados do tabuleiro se o tabuleiro tiver solução 
 def algorithm_page(selected_size,board):
-    counter,moves,solution_path = breath_first_search(do_move,used_pieces,list_finish,pos_finish,check_move, pos_pieces,solution_check,board)
+    counter,moves,solution_path,n_boards = breath_first_search(do_move,used_pieces,list_finish,pos_finish,check_move, pos_pieces,solution_check,board)
     print(f"Counter: {counter}")
-    print(f"Moves: {moves}\n")
+    print(f"Moves: {moves}")
+    print(f"How many boards: {n_boards}\n")
     if solution_path != None:
         for i in range(len(solution_path)):
             for row in solution_path[i]:
