@@ -1,4 +1,5 @@
 import copy
+from levels import *
 
 #lista das peças usadas
 def used_pieces(board):
@@ -78,7 +79,7 @@ def check_move(pos_pieces,pieces,new_board,board):
 
 
 # Faz o movimento e retorna novos estados para memo1 
-def do_move(used_pieces,list_finish,pos_finish, check_move, pos_pieces,board,solution_check,memo,memo1,visited,history,solution,solution_not_found):
+def do_move(boards_analized,used_pieces,list_finish,pos_finish, check_move, pos_pieces,board,solution_check,memo,memo1,visited,history,solution,solution_not_found):
     flag = False
     pieces = used_pieces(board)
     finish = list_finish(board)
@@ -127,7 +128,8 @@ def do_move(used_pieces,list_finish,pos_finish, check_move, pos_pieces,board,sol
                                 if col+1 < len(board) and new_board[row][col+1] != "3" and new_board[row][col+1][0] != "1": 
                                     new_board[row][col+1] = new_board[row][col]
                                     new_board[row][col] = "0"    
-                    update_finish(new_board,board)    
+                    update_finish(new_board,board)
+            boards_analized += 1
             if new_board in visited:
                     continue
             else:
@@ -139,12 +141,12 @@ def do_move(used_pieces,list_finish,pos_finish, check_move, pos_pieces,board,sol
             if solution_check(pieces,finish,piece_postition,finish_position):
                 flag = True
                 solution = True
-                print("Solução encontrada\n")
+                #print("Solução encontrada\n")
                 break
     if memo1 == []:
         print("Solução não encontrada")
         solution_not_found = True
-    return memo,memo1,visited,history,solution,solution_not_found
+    return memo,memo1,visited,history,solution,solution_not_found,boards_analized
 
 #dá a lista de movimentos realizados e a sequência de estados até encontrar a solução
 def retrace_steps(history, visited, memo1):
@@ -163,19 +165,20 @@ def retrace_steps(history, visited, memo1):
 
 #onde a magia acontece
 def breath_first_search(do_move,used_pieces,list_finish,pos_finish,check_move, pos_pieces,solution_check,board):
-    memo = [board] #n-1 (penultimo estado de profundidade da arvore de estados)
-    memo1 = [] #n (último estado de profundidade da arvore de estados)
-    visited = [board] #estados de tabuleiro já visitados
-    history = {} #historico dos movimento realizados a partir de um estado pai e o estado filho que geraram
-    counter = 0 #contador de movimentos até à solução ou até não encontrar mais estados novos
-    solution = False #verifica se a solução já foi encontrada: Yes if True
-    solution_not_found = False #verifica se a solução não tem solução: Yes if True
+    memo = [board]
+    memo1 = []
+    visited = [board] 
+    history = {}
+    counter = 0
+    boards_analized = 0
+    solution = False
+    solution_not_found = False
     while solution == False and solution_not_found == False:
-        memo,memo1,visited,history,solution,solution_not_found = do_move(used_pieces,list_finish,pos_finish,check_move, pos_pieces, board,solution_check,memo,memo1,visited,history,solution,solution_not_found)
+        memo,memo1,visited,history,solution,solution_not_found,boards_analized = do_move(boards_analized,used_pieces,list_finish,pos_finish,check_move, pos_pieces, board,solution_check,memo,memo1,visited,history,solution,solution_not_found)
         counter +=1
     if memo1 != []:
         solution_path,moves = retrace_steps(history, visited, memo1) 
     else:
         moves = None
         solution_path = None
-    return counter,moves,solution_path
+    return counter,moves,solution_path,boards_analized
