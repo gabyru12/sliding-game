@@ -757,7 +757,7 @@ def algorithm_page(selected_size,board):
         screen.fill("light blue")
         pygame.draw.rect(screen,"grey", (WIDTH//2-200,HEIGHT//2-125//2,400,125))
         pygame.draw.rect(screen,"black", (WIDTH//2-200,HEIGHT//2-125//2,400,125),5)
-        solved_text = font.render(f"Counldn't solve board",True,"black")
+        solved_text = font.render(f"Couldn't solve board",True,"black")
         screen.blit(solved_text,(WIDTH//2 - solved_text.get_width()//2, HEIGHT//2 - solved_text.get_height()//2))
     run = True
     while run:
