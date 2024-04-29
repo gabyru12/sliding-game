@@ -1,7 +1,8 @@
 import pygame
 import sys
 from levels import levels
-from algoritmo import *
+from breath_first_search import *
+from all_star import *
 import time
 
 # Inicializando Pygame
@@ -97,6 +98,7 @@ def show_levels():
     run = True
     while run:
         screen.fill("light blue")
+        click = False
         
         # Desenhar os botões dos níveis
         button_width, button_height = 50, 50
@@ -105,17 +107,8 @@ def show_levels():
         start_x = (WIDTH - (cols * (button_width + button_padding))) // 2
         start_y = (HEIGHT - (rows * (button_height + button_padding))) // 2
         level_number = 1
-        for row in range(rows):
-            for col in range(cols):
-                button_rect = pygame.Rect(start_x + col * (button_width + button_padding),
-                                          start_y + row * (button_height + button_padding),
-                                          button_width, button_height)
-                pygame.draw.rect(screen, "grey", button_rect)
-                font = pygame.font.Font(None, 36)
-                text = font.render(str(level_number), True, "black")
-                text_rect = text.get_rect(center=button_rect.center)
-                screen.blit(text, text_rect)
-                level_number += 1
+        mx, my = pygame.mouse.get_pos()
+        
 
         # Verificar cliques nos botões dos níveis
         for event in pygame.event.get():
@@ -128,7 +121,7 @@ def show_levels():
                     run = False
                     main_menu()
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                mx, my = pygame.mouse.get_pos()
+                click = True
                 for row in range(rows):
                     for col in range(cols):
                         button_rect = pygame.Rect(start_x + col * (button_width + button_padding),
@@ -138,6 +131,23 @@ def show_levels():
                             level_number = row * cols + col + 1
                             run = False
                             show_board(levels[level_number - 1])  # Chama a função show_board com o nível selecionado
+        for row in range(rows):
+            for col in range(cols):
+                button_rect = pygame.Rect(start_x + col * (button_width + button_padding),
+                                          start_y + row * (button_height + button_padding),
+                                          button_width, button_height)
+                pygame.draw.rect(screen, "grey", button_rect)
+                if button_rect.collidepoint(mx,my):
+                    pygame.draw.rect(screen, "light grey", button_rect)
+                    if click:
+                        level_number = row * cols + col + 1
+                        run = False
+                        show_board(levels[level_number - 1])
+                font = pygame.font.Font(None, 36)
+                text = font.render(str(level_number), True, "black")
+                text_rect = text.get_rect(center=button_rect.center)
+                screen.blit(text, text_rect)
+                level_number += 1
 
         pygame.display.update()
 
@@ -394,25 +404,31 @@ def choose_board(selected_size):
         # Botões para escolher o tamanho do tabuleiro
         button_width, button_height = 100, 50
         button_y = 150
-        button_x_start = WIDTH // 4
+        button_x_start = WIDTH // 6.5
 
-        button_5x5 = pygame.Rect(button_x_start, button_y, button_width, button_height)
+        button_4x4 = pygame.Rect(button_x_start, button_y, button_width, button_height)
+        pygame.draw.rect(screen, "gray", button_4x4)
+        pygame.draw.rect(screen, "black", button_4x4,2)
+        text_4x4 = font.render("4x4", True, "black")
+        screen.blit(text_4x4, (button_x_start + button_width // 2 - text_4x4.get_width() // 2, button_y + button_height // 2 - text_4x4.get_height() // 2))
+
+        button_5x5 = pygame.Rect(button_x_start + button_width + 50, button_y, button_width, button_height)
         pygame.draw.rect(screen, "gray", button_5x5)
         pygame.draw.rect(screen, "black", button_5x5,2)
         text_5x5 = font.render("5x5", True, "black")
-        screen.blit(text_5x5, (button_x_start + button_width // 2 - text_5x5.get_width() // 2, button_y + button_height // 2 - text_5x5.get_height() // 2))
+        screen.blit(text_5x5, (button_x_start + button_width + 50 + button_width // 2 - text_5x5.get_width() // 2, button_y + button_height // 2 - text_5x5.get_height() // 2))
 
-        button_6x6 = pygame.Rect(button_x_start + button_width + 50, button_y, button_width, button_height)
+        button_6x6 = pygame.Rect(button_x_start + 2 * (button_width + 50), button_y, button_width, button_height)
         pygame.draw.rect(screen, "gray", button_6x6)
         pygame.draw.rect(screen, "black", button_6x6,2)
         text_6x6 = font.render("6x6", True, "black")
-        screen.blit(text_6x6, (button_x_start + button_width + 50 + button_width // 2 - text_6x6.get_width() // 2, button_y + button_height // 2 - text_6x6.get_height() // 2))
+        screen.blit(text_6x6, (button_x_start + 2 * (button_width + 50) + button_width // 2 - text_6x6.get_width() // 2, button_y + button_height // 2 - text_6x6.get_height() // 2))
 
-        button_7x7 = pygame.Rect(button_x_start + 2 * (button_width + 50), button_y, button_width, button_height)
+        button_7x7 = pygame.Rect(button_x_start + 3 * (button_width + 50), button_y, button_width, button_height)
         pygame.draw.rect(screen, "gray", button_7x7)
         pygame.draw.rect(screen, "black", button_7x7,2)
         text_7x7 = font.render("7x7", True, "black")
-        screen.blit(text_7x7, (button_x_start + 2 * (button_width + 50) + button_width // 2 - text_7x7.get_width() // 2, button_y + button_height // 2 - text_7x7.get_height() // 2))
+        screen.blit(text_7x7, (button_x_start + 3 * (button_width + 50) + button_width // 2 - text_7x7.get_width() // 2, button_y + button_height // 2 - text_7x7.get_height() // 2))
 
         button_next = pygame.Rect(WIDTH - (button_width + 25), HEIGHT - (button_height + 25), button_width, button_height)
         pygame.draw.rect(screen, "green", button_next)
@@ -421,17 +437,21 @@ def choose_board(selected_size):
         screen.blit(text_next, (WIDTH - (button_width + 25) + button_width // 2 - text_next.get_width() // 2,HEIGHT - (button_height + 25) + button_height // 2 - text_next.get_height() // 2))
 
         if button_x_start <= mx <= button_x_start + 100 and 150 <= my <= 150 + button_height:
+            pygame.draw.rect(screen, "light gray", button_4x4)
+            pygame.draw.rect(screen, "black", button_4x4,2)
+            screen.blit(text_4x4, (button_x_start + button_width // 2 - text_4x4.get_width() // 2, button_y + button_height // 2 - text_4x4.get_height() // 2))
+        elif button_x_start + button_width + 50 <= mx <= button_x_start + button_width + 50 + button_width and 150 <= my <= 150 + button_height:
             pygame.draw.rect(screen, "light gray", button_5x5)
             pygame.draw.rect(screen, "black", button_5x5,2)
-            screen.blit(text_5x5, (button_x_start + button_width // 2 - text_5x5.get_width() // 2, button_y + button_height // 2 - text_5x5.get_height() // 2))
-        elif button_x_start + button_width + 50 <= mx <= button_x_start + button_width + 50 + button_width and 150 <= my <= 150 + button_height:
+            screen.blit(text_5x5, (button_x_start + button_width + 50 + button_width // 2 - text_5x5.get_width() // 2, button_y + button_height // 2 - text_5x5.get_height() // 2))
+        elif button_x_start + 2 * (button_width + 50) <= mx <= button_x_start + 2 * (button_width +50) + button_width and 150 <= my <= 150 + button_height:
             pygame.draw.rect(screen, "light gray", button_6x6)
             pygame.draw.rect(screen, "black", button_6x6,2)
-            screen.blit(text_6x6, (button_x_start + button_width + 50 + button_width // 2 - text_6x6.get_width() // 2, button_y + button_height // 2 - text_6x6.get_height() // 2))
-        elif button_x_start + 2 * (button_width + 50) <= mx <= button_x_start + 2 * (button_width +50) + button_width and 150 <= my <= 150 + button_height:
+            screen.blit(text_6x6, (button_x_start + 2 * (button_width + 50) + button_width // 2 - text_6x6.get_width() // 2, button_y + button_height // 2 - text_6x6.get_height() // 2))
+        elif button_x_start + 3 * (button_width + 50) <= mx <= button_x_start + 3 * (button_width +50) + button_width and 150 <= my <= 150 + button_height:
             pygame.draw.rect(screen, "light gray", button_7x7)
             pygame.draw.rect(screen, "black", button_7x7,2)
-            screen.blit(text_7x7, (button_x_start + 2 * (button_width + 50) + button_width // 2 - text_7x7.get_width() // 2, button_y + button_height // 2 - text_7x7.get_height() // 2))
+            screen.blit(text_7x7, (button_x_start + 3 * (button_width + 50) + button_width // 2 - text_7x7.get_width() // 2, button_y + button_height // 2 - text_7x7.get_height() // 2))
 
         click = False
         for event in pygame.event.get():
@@ -448,10 +468,12 @@ def choose_board(selected_size):
 
         if click:
             if button_x_start <= mx <= button_x_start + 100 and 150 <= my <= 150 + button_height:
-                selected_size = "5x5"
+                selected_size = "4x4"
             elif button_x_start + button_width + 50 <= mx <= button_x_start + button_width + 50 + button_width and 150 <= my <= 150 + button_height:
-                selected_size = "6x6"
+                selected_size = "5x5"
             elif button_x_start + 2 * (button_width + 50) <= mx <= button_x_start + 2 * (button_width +50) + button_width and 150 <= my <= 150 + button_height:
+                selected_size = "6x6"
+            elif button_x_start + 3 * (button_width + 50) <= mx <= button_x_start + 3 * (button_width +50) + button_width and 150 <= my <= 150 + button_height:
                 selected_size = "7x7"
             elif WIDTH - (button_width + 25) <= mx <= WIDTH - (button_width + 25) + button_width and HEIGHT - (button_height + 25) <= my <= HEIGHT - (button_height + 25) + button_height:
                 run = False
@@ -731,10 +753,23 @@ def put_pieces(selected_size):
 
 # Dá o número de movimentos, os movimentos usados e os diferentes estados do tabuleiro se o tabuleiro tiver solução 
 def algorithm_page(selected_size,board):
-    counter,moves,solution_path,n_boards = breath_first_search(do_move,used_pieces,list_finish,pos_finish,check_move, pos_pieces,solution_check,board)
-    print(f"Counter: {counter}")
-    print(f"Moves: {moves}")
-    print(f"How many boards: {n_boards}\n")
+    start_time = time.time()
+    steps,moves,solution_path,boards_analized_bfs = breath_first_search(do_move,used_pieces,list_finish,pos_finish,check_move, pos_pieces,solution_check,board)
+    end_time = time.time()
+    elapsed_time_bfs = end_time - start_time
+
+    start_time = time.time()
+    final_board,boards_analized_allStar,depth = all_star(used_pieces,list_finish,pos_pieces,pos_finish,pair_pieces_winning_point,check_moves,put_in_openBoardMoves,simulate_move,after_move,board)
+    end_time = time.time()
+    elapsed_time_allStar = end_time - start_time
+
+    print(f"\nSteps: {steps}")
+    print(f"Moves: {moves}\n")
+    print(f"Time (BFS): {elapsed_time_bfs}")
+    print(f"Boards analized (BFS): {boards_analized_bfs}\n")
+    print(f"Time (A*): {elapsed_time_allStar}")
+    print(f"Boards analized (A*): {boards_analized_allStar}\n")
+
     if solution_path != None:
         for i in range(len(solution_path)):
             for row in solution_path[i]:
