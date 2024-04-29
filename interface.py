@@ -763,7 +763,8 @@ def algorithm_page(selected_size,board):
     end_time = time.time()
     elapsed_time_allStar = end_time - start_time
 
-    print(f"\nSteps: {steps}")
+    if moves != None:
+        print(f"Steps: {steps}")
     print(f"Moves: {moves}\n")
     print(f"Time (BFS): {elapsed_time_bfs}")
     print(f"Boards analized (BFS): {boards_analized_bfs}\n")
