@@ -1,13 +1,6 @@
 import copy
 from levels import *
 
-board = [["0","1b1","0","0","2r1","3"],
-           ["0","0","0","0","0","2g1"],
-           ["0","3","0","3","0","1g1"],
-           ["0","0","1r1","0","3","3"],
-           ["3","0","0","0","0","3"],
-           ["2b1","0","0","0","3","0"]]
-
 #lista das peças usadas
 def used_pieces(board):
     pieces = []
@@ -97,7 +90,7 @@ def put_in_openBoardMoves(open_board_moves,check_moves,pieces,pos_pieces,newly_c
     newly_created_boardstate = None
     return open_board_moves,newly_created_boardstate
 
-def simulate_move(counter,open_board_value,pair_pieces_winning_point,list_finish,used_pieces,open_board_moves,check_moves,pieces,winning_points,pos_pieces,pos_finish,newly_created_boardstate,put_in_openBoardMoves,board,solution):
+def simulate_move(visited_board_value,boards_analized,open_board_value,pair_pieces_winning_point,list_finish,used_pieces,open_board_moves,check_moves,pieces,winning_points,pos_pieces,pos_finish,newly_created_boardstate,put_in_openBoardMoves,board,solution):
     open_board_moves,newly_created_boardstate = put_in_openBoardMoves(open_board_moves,check_moves,pieces,pos_pieces,newly_created_boardstate)
     pos_of_winning_points = pos_finish(board)
     for tupled_parent_board, value in open_board_moves.items():
@@ -143,14 +136,14 @@ def simulate_move(counter,open_board_value,pair_pieces_winning_point,list_finish
                     update_finish(new_board,board)
             pieces_v2 = used_pieces(new_board)
             pos_of_pieces = pos_pieces(new_board)
-            counter += 1
+            boards_analized += 1
             if new_board not in visited_board_value:
                 open_board_value = heuristic_calc(open_board_value,pair_pieces_winning_point,used_pieces,list_finish,pos_pieces,pos_finish,open_board_moves,moves[i],new_board,parent_board,board)
             if solution_check(pieces_v2,winning_points,pos_of_pieces,pos_of_winning_points):
                 solution = True
-                return open_board_value,open_board_moves,solution,counter
+                return open_board_value,open_board_moves,solution,boards_analized
     open_board_moves.clear()
-    return open_board_value,open_board_moves,solution,counter
+    return open_board_value,open_board_moves,solution,boards_analized
 
 def heuristic_calc(open_board_value,pair_pieces_winning_point,used_pieces,list_finish,pos_pieces,pos_finish,open_board_moves,move,new_board,parent_board,board):
     pairs = pair_pieces_winning_point(used_pieces,list_finish,board)
@@ -162,7 +155,10 @@ def heuristic_calc(open_board_value,pair_pieces_winning_point,used_pieces,list_f
     for i in range(len(pairs)):
         x_piece,y_piece = pos_of_pieces[pairs[i][0]][0],pos_of_pieces[pairs[i][0]][1]
         x_winning_point,y_winning_point = pos_of_winning_points[pairs[i][1]][0],pos_of_winning_points[pairs[i][1]][1]
-        value += abs(x_piece-x_winning_point)+abs(y_piece-y_winning_point)+depth
+        value += (abs(x_piece-x_winning_point)+abs(y_piece-y_winning_point))
+    value += 3*depth
+    if value - 3*depth == 0:
+        value = 0
     if tupled_board not in open_board_value:
         open_board_value[tupled_board] = (parent_board,move,value,depth)
     elif tupled_board in open_board_value and value < open_board_value[tupled_board][2]:
@@ -181,31 +177,22 @@ def after_move(newly_created_boardstate,open_board_value,visited_board_value):
             depth = open_board_value[new_board][3]
             newly_created_boardstate = ((list(list(row) for row in new_board), depth))
             visited_board_value.append(list(list(row) for row in new_board))
-            history[(new_board,depth)] = (parent_board,move)
             del open_board_value[new_board]
-            return newly_created_boardstate,visited_board_value,history
+            return newly_created_boardstate,visited_board_value
 
-
-newly_created_boardstate = (board,0)
-open_board_moves = {} 
-open_board_value = {} 
-visited_board_value = []
-history = {}
-pieces = used_pieces(board)
-winning_points = list_finish(board)
-solution = False
-counter = 0
-
-
-while not solution:
-    open_board_value,open_board_moves,solution,counter = simulate_move(counter,open_board_value,pair_pieces_winning_point,list_finish,used_pieces,open_board_moves,check_moves,pieces,winning_points,pos_pieces,pos_finish,newly_created_boardstate,put_in_openBoardMoves,board,solution)
-    newly_created_boardstate,visited_board_value,history = after_move(newly_created_boardstate,open_board_value,visited_board_value)
-    print(counter)
-    for row in newly_created_boardstate[0]:
-        print(" ".join(row))
-    print("\n")
-
-for row in newly_created_boardstate[0]:
-    print(" ".join(row))
-print(f"Depth: {newly_created_boardstate[1]}")
-print(f"Boards analized: {counter}")
+def all_star(used_pieces,list_finish,pos_pieces,pos_finish,pair_pieces_winning_point,check_moves,put_in_openBoardMoves,simulate_move,after_move,board):
+    counter = 0
+    newly_created_boardstate = (board,0)
+    open_board_moves = {}
+    open_board_value = {} 
+    visited_board_value = [] 
+    history = {}
+    pieces = used_pieces(board)
+    winning_points = list_finish(board)
+    solution = False
+    boards_analized = 0
+    while not solution:
+        counter += 1
+        open_board_value,open_board_moves,solution,boards_analized = simulate_move(visited_board_value,boards_analized,open_board_value,pair_pieces_winning_point,list_finish,used_pieces,open_board_moves,check_moves,pieces,winning_points,pos_pieces,pos_finish,newly_created_boardstate,put_in_openBoardMoves,board,solution)
+        newly_created_boardstate,visited_board_value = after_move(newly_created_boardstate,open_board_value,visited_board_value)
+    return newly_created_boardstate[0],boards_analized,newly_created_boardstate[1]
