@@ -183,9 +183,9 @@ def after_move(newly_created_boardstate,open_board_value,visited_board_value):
 def all_star(used_pieces,list_finish,pos_pieces,pos_finish,pair_pieces_winning_point,check_moves,put_in_openBoardMoves,simulate_move,after_move,board):
     counter = 0
     newly_created_boardstate = (board,0)
-    open_board_moves = {}
+    open_board_moves = {} #created by neighbouring boards
     open_board_value = {} 
-    visited_board_value = [] 
+    visited_board_value = [] #created by after_move
     history = {}
     pieces = used_pieces(board)
     winning_points = list_finish(board)
@@ -194,5 +194,7 @@ def all_star(used_pieces,list_finish,pos_pieces,pos_finish,pair_pieces_winning_p
     while not solution:
         counter += 1
         open_board_value,open_board_moves,solution,boards_analized = simulate_move(visited_board_value,boards_analized,open_board_value,pair_pieces_winning_point,list_finish,used_pieces,open_board_moves,check_moves,pieces,winning_points,pos_pieces,pos_finish,newly_created_boardstate,put_in_openBoardMoves,board,solution)
+        if len(open_board_value) == 0:
+            return newly_created_boardstate[0],boards_analized,newly_created_boardstate[1]
         newly_created_boardstate,visited_board_value = after_move(newly_created_boardstate,open_board_value,visited_board_value)
     return newly_created_boardstate[0],boards_analized,newly_created_boardstate[1]
