@@ -1,15 +1,16 @@
-from algoritmo import *
+from breath_first_search import *
 from levels import *
 import copy
 
 while True:
-    level = int(input("What level would you like to play (1-30): "))
+    level = input("What level would you like to play (1-30): ")
+    if level == "exit":
+        break
+    level = int(level)
     while level < 0 or level > 30:
         print("This level doesn't exist.")
         level = int(input("Choose another: "))
-    if level == 0:
-        break
-    elif level == 1:
+    if level == 1:
         level = level1
     elif level == 2:
         level = level2
@@ -78,12 +79,12 @@ while True:
     while True:
         solution_of_board = False
         pos_of_pieces = pos_pieces(new_board)
-        if solution_check(pieces,winning_points,pos_of_pieces,pos_of_finish):
-            print ("GANHOU!")
-            break
         for row in new_board:
             print(" ".join(row))
         print("\n")
+        if solution_check(pieces,winning_points,pos_of_pieces,pos_of_finish):
+            print ("GANHOU!")
+            break
         move = input("Choose move (right, left, up, down): ")
         if move == "left":
             for k in range(len(new_board)):
