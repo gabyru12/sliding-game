@@ -141,10 +141,10 @@ def do_move(boards_analized,used_pieces,list_finish,pos_finish, check_move, pos_
             if solution_check(pieces,finish,piece_postition,finish_position):
                 flag = True
                 solution = True
-                #print("Solução encontrada\n")
+                print("\nSolução encontrada\n")
                 break
     if memo1 == []:
-        print("Solução não encontrada")
+        print("\nSolução não encontrada\n")
         solution_not_found = True
     return memo,memo1,visited,history,solution,solution_not_found,boards_analized
 
