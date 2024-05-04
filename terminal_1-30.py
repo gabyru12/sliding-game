@@ -1,4 +1,4 @@
-from breath_first_search import *
+from bfs import *
 from levels import *
 import copy
 
